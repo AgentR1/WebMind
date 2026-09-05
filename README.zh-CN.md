@@ -2,17 +2,18 @@
 
 **基于 Chrome DevTools Protocol 的独立浏览器 Skill，供 AI 编程助手使用。**
 
-[English](README.md) · [Skill 指令](SKILL.md) · [命令参考](references/commands.md)
+[English](README.md) · [Skill 指令](SKILL.md) · [命令参考](references/commands.md) · [阅读工作流](examples/reading-workflows.md)
 
 WebMind 提供一个精简的 Python CLI，让宿主 Agent 读取和操作专用的 Chrome 或 Chromium 浏览器。行动选择与结果理解由宿主的大语言模型完成，WebMind 提供浏览器控制能力，不内置 AI 模型，也不依赖第三方 Python 包。
 
 ## 功能
 
 - 复用持久化浏览器配置，保留独立的登录状态和 Cookie。
-- 列出和选择标签页、导航、执行 JavaScript 读取 DOM。
+- 使用 `read-page` 读取正文、标题层级和链接，使用 JavaScript 定制 DOM 查询。
+- 列出标签页、选择唯一页面目标，导航后返回明确状态。
 - 等待选择器、点击元素、填写字段、插入文本和发送按键。
 - 截取页面视口 PNG，处理 JavaScript 对话框。
-- 通过 12 个命令输出 JSON，方便 Agent 调用。
+- 通过 13 个命令输出 JSON，方便 Agent 调用。
 
 ## 环境要求
 
@@ -59,14 +60,15 @@ python3 scripts/webmind.py launch --json
 python3 scripts/webmind.py tabs --json
 ```
 
-从 `tabs` 输出中复制目标页面的 `id`，替换下方 `TAB_ID`，再导航并读取页面：
+从 `tabs` 输出中复制目标 `type: "page"` 条目的 `id`，替换下方 `TAB_ID`，再导航并读取页面：
 
 ```bash
 python3 scripts/webmind.py navigate --target-id TAB_ID --url "https://example.com" --wait-load --json
-python3 scripts/webmind.py wait-for-selector --target-id TAB_ID --selector "h1" --visible --json
-python3 scripts/webmind.py eval --target-id TAB_ID --expression "({title: document.title, url: location.href, text: document.body.innerText})" --json
+python3 scripts/webmind.py read-page --target-id TAB_ID --wait-selector "h1" --max-chars 20000 --max-links 100 --json
 python3 scripts/webmind.py screenshot --target-id TAB_ID --output page.png --json
 ```
+
+`read-page` 返回页面标题、URL、语言、正文、标题层级、去重后的 HTTP(S) 链接，以及提取方式和截断信息。它通过启发式规则选择可能的正文区域；需要读取已观察到的特定区域时，使用 `--selector` 覆盖，定制 DOM 查询则使用 `eval`。登录态、动态内容和失败恢复示例见[阅读工作流](examples/reading-workflows.md)。
 
 `launch` 会复用已响应的端点，只有新启动浏览器时才使用其 `--url` 参数。要在已有标签页中打开地址，请使用 `navigate`。本地端点不可用时，`tabs` 和标签页操作命令可自动启动专用浏览器；`self-check` 只检查端点。
 
@@ -97,11 +99,12 @@ WebMind 需要 HTTP CDP 发现接口 `/json/version` 和 `/json/list`。在日�
 
 ## 命令与边界
 
-全部命令为 `self-check`、`tabs`、`launch`、`eval`、`navigate`、`wait-for-selector`、`click`、`fill`、`insert-text`、`press`、`screenshot`、`handle-js-dialog`。参数和示例见[命令参考](references/commands.md)。
+全部命令为 `self-check`、`tabs`、`launch`、`read-page`、`eval`、`navigate`、`wait-for-selector`、`click`、`fill`、`insert-text`、`press`、`screenshot`、`handle-js-dialog`。参数和结果字段见[命令参考](references/commands.md)。
 
-- 优先从 `tabs` 中选择 `type: "page"` 的条目，并明确指定 `--target-id`。自动选择会优先匹配页面，没有页面时可能回退到其他可调试目标；URL、标题筛选会选择第一个匹配项。
-- `click` 或 `fill` 返回成功，表示已执行相应操作，不保证网页接受了结果。应读取操作后的 DOM、字段值或页面状态进行验证。
-- 加载事件不代表动态内容已就绪，应等待所需选择器或检查页面状态。
+- 优先从 `tabs` 中选择 `type: "page"` 的条目，并明确指定 `--target-id`。目标必须唯一匹配；多个匹配或非页面目标会被拒绝。
+- 导航会报告 `loaded`、`same-document`、`dispatched`、`failed`、`download` 或 `timeout`。导航错误和等待超时返回 `ok: false`，进程以非零状态退出。加载事件仍不代表动态内容已就绪。
+- 输入操作成功发出时报告 `status: "dispatched"`、`outcome_verified: false`。填写结果中的 `immediate_value_verified: true` 只校验即时字段值；应进一步读取 DOM、校验提示或页面状态，确认网页实际结果。
+- `read-page` 对当前文档做启发式快照提取，可能漏读或选错区域，应检查提取方式和截断信息。它不提供 OCR，不穿透 iframe 或 Shadow DOM，也不绕过登录与访问限制。
 - 截图范围是页面视口，不是整页长截图或桌面截图。
 - 原生文件选择器、浏览器权限气泡、扩展界面和系统弹窗不在 CLI 能力范围内；需要时可使用宿主已有的 GUI 工具。本包不依赖其他 Skill。
 - 浏览器操作仍须符合用户的任务范围与宿主 Agent 的授权规则。
@@ -114,7 +117,7 @@ WebMind 需要 HTTP CDP 发现接口 `/json/version` 和 `/json/list`。在日�
 python3 -m unittest discover -s tests -v
 ```
 
-浏览器集成测试需要显式启用：
+浏览器集成测试需要显式启用，在真实 Chrome 中针对本地 HTTP 测试站点运行任务场景：
 
 ```bash
 WEBMIND_TEST_CHROME=/absolute/path/to/chrome python3 -m unittest discover -s tests -v
@@ -126,6 +129,8 @@ PowerShell：
 $env:WEBMIND_TEST_CHROME = "C:\path\to\chrome.exe"
 py -3 -m unittest discover -s tests -v
 ```
+
+这些受控测试检查正文提取、浏览器操作及失败场景，与公开网站上的端到端任务基准不同，不能据此推断通用网站任务成功率。
 
 仓库提供可选的 [GitHub Actions 模板](examples/github-actions-checks.yml)，用于在 macOS、Linux、Windows 和 Python 3.10、3.12 上运行离线测试。启用时，使用具备工作流权限的 GitHub 账号或令牌，将模板复制到 `.github/workflows/checks.yml`。位于 `examples/` 时不会自动运行。
 

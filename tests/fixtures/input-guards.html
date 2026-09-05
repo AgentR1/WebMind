@@ -1,0 +1,10 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Input protection fixture</title></head>
+<body>
+<label>Existing focus <input id="focused" value="Keep this text"></label>
+<label>Disabled <input id="disabled" disabled value="disabled value"></label>
+<label>Read only <input id="readonly" readonly value="readonly value"></label>
+<div id="plain">Not editable</div>
+<label>Editable <input id="editable"></label>
+<label>Normalized <input id="normalized" oninput="this.value = this.value.toUpperCase()"></label>
+</body></html>

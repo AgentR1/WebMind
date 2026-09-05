@@ -1,0 +1,8 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Blocked click fixture</title>
+<style>
+#covered { position: absolute; top: 80px; left: 80px; width: 150px; height: 50px; }
+#overlay { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,.1); }
+</style></head>
+<body><button id="covered" onclick="document.body.dataset.clicked='yes'">Covered button</button><div id="overlay"></div></body>
+</html>

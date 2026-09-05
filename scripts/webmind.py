@@ -7,6 +7,7 @@ import argparse
 import base64
 import hashlib
 import json
+import math
 import os
 import platform
 import shutil
@@ -208,31 +209,27 @@ def get_tabs(endpoint: str) -> List[Dict[str, Any]]:
 def select_tab(args: argparse.Namespace) -> Dict[str, Any]:
     ensure_endpoint(args)
     tabs = get_tabs(args.endpoint)
-    page_tabs = [tab for tab in tabs if tab.get("type") == "page" and tab.get("webSocketDebuggerUrl")]
-    candidates = page_tabs or [tab for tab in tabs if tab.get("webSocketDebuggerUrl")]
+    candidates = [tab for tab in tabs if tab.get("type") == "page" and tab.get("webSocketDebuggerUrl")]
 
     if args.target_id:
         for tab in candidates:
             if tab.get("id") == args.target_id:
                 return tab
-        raise RuntimeError(f"no CDP tab found with id: {args.target_id}")
+        raise RuntimeError(f"no CDP tab found with id: {args.target_id} (only page targets are supported)")
 
     if args.url_contains:
         needle = args.url_contains.lower()
-        for tab in candidates:
-            if needle in str(tab.get("url", "")).lower():
-                return tab
-        raise RuntimeError(f"no CDP tab URL contains: {args.url_contains}")
+        candidates = [tab for tab in candidates if needle in str(tab.get("url", "")).lower()]
 
     if args.title_contains:
         needle = args.title_contains.lower()
-        for tab in candidates:
-            if needle in str(tab.get("title", "")).lower():
-                return tab
-        raise RuntimeError(f"no CDP tab title contains: {args.title_contains}")
+        candidates = [tab for tab in candidates if needle in str(tab.get("title", "")).lower()]
 
     if not candidates:
-        raise RuntimeError("no page targets with webSocketDebuggerUrl are available")
+        raise RuntimeError("no page targets match the requested filters; use tabs to inspect available pages")
+    if len(candidates) > 1:
+        ids = ", ".join(str(tab.get("id")) for tab in candidates)
+        raise RuntimeError(f"ambiguous page target: {ids}; choose --target-id from tabs")
     return candidates[0]
 
 
@@ -434,14 +431,21 @@ def js_string(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
-def selector_center_script(selector: str, visible: bool = True) -> str:
+def selector_center_script(selector: str, visible: bool = True, actionable: bool = False) -> str:
     visibility_check = (
         "const style = getComputedStyle(el);"
-        "const visible = rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none';"
+        "const visible = rect.width > 0 && rect.height > 0 && !['hidden','collapse'].includes(style.visibility) && style.display !== 'none' && Number(style.opacity) !== 0;"
         "if (!visible) return {ok:false,error:'selector found but element is not visible'};"
         if visible
         else ""
     )
+    actionability_check = """
+  if (el.closest(':disabled,[aria-disabled="true"],[inert]'))
+    return {ok:false,error:'element is disabled or inert',selector};
+  const hit = document.elementFromPoint(point.x, point.y);
+  if (!hit || (hit !== el && !el.contains(hit)))
+    return {ok:false,error:'element center is covered or outside the viewport',selector};
+""" if actionable else ""
     return f"""
 (() => {{
   const selector = {js_string(selector)};
@@ -450,13 +454,15 @@ def selector_center_script(selector: str, visible: bool = True) -> str:
   el.scrollIntoView({{block:'center', inline:'center'}});
   const rect = el.getBoundingClientRect();
   {visibility_check}
+  const point = {{x: rect.left + rect.width / 2, y: rect.top + rect.height / 2}};
+  {actionability_check}
   return {{
     ok: true,
     selector,
     tag: el.tagName,
     text: (el.innerText || el.value || el.getAttribute('aria-label') || '').slice(0, 300),
     rect: {{x: rect.x, y: rect.y, width: rect.width, height: rect.height}},
-    point: {{x: rect.left + rect.width / 2, y: rect.top + rect.height / 2}}
+    point
   }};
 }})()
 """
@@ -469,12 +475,17 @@ def fill_script(selector: str, text: str) -> str:
   const text = {js_string(text)};
   const el = document.querySelector(selector);
   if (!el) return {{ok:false,error:'selector not found',selector}};
+  if (el.closest(':disabled,[aria-disabled="true"],[inert]') || el.readOnly)
+    return {{ok:false,error:'element is disabled, readonly, or inert',selector}};
   el.scrollIntoView({{block:'center', inline:'center'}});
   el.focus();
   if (el.isContentEditable) {{
     el.textContent = text;
     el.dispatchEvent(new InputEvent('input', {{bubbles:true, inputType:'insertText', data:text}}));
-    return {{ok:true,mode:'contenteditable',selector,tag:el.tagName}};
+    const verified = el.isConnected && el.textContent === text;
+    return {{ok:verified,mode:'contenteditable',selector,tag:el.tagName,
+      immediate_value_verified:verified,
+      ...(verified ? {{}} : {{error:'field text did not match after input event'}})}};
   }}
   if ('value' in el) {{
     const proto = Object.getPrototypeOf(el);
@@ -483,9 +494,34 @@ def fill_script(selector: str, text: str) -> str:
     else el.value = text;
     el.dispatchEvent(new Event('input', {{bubbles:true}}));
     el.dispatchEvent(new Event('change', {{bubbles:true}}));
-    return {{ok:true,mode:'value',selector,tag:el.tagName,value:el.value}};
+    const verified = el.isConnected && el.value === text;
+    return {{ok:verified,mode:'value',selector,tag:el.tagName,value:el.value,
+      immediate_value_verified:verified,
+      ...(verified ? {{}} : {{error:'field value did not match after input/change events'}})}};
   }}
   return {{ok:false,error:'element is not fillable',selector,tag:el.tagName}};
+}})()
+"""
+
+
+def focus_editable_script(selector: str) -> str:
+    return f"""
+(() => {{
+  const selector = {js_string(selector)};
+  const el = document.querySelector(selector);
+  if (!el) return {{ok:false,error:'selector not found',selector}};
+  if (el.closest(':disabled,[aria-disabled="true"],[inert]') || el.readOnly)
+    return {{ok:false,error:'element is disabled, readonly, or inert',selector}};
+  const textInput = el.tagName === 'INPUT' &&
+    ['text','search','tel','url','email','password','number'].includes(el.type);
+  if (!textInput && el.tagName !== 'TEXTAREA' && !el.isContentEditable)
+    return {{ok:false,error:'target is not an editable text element',selector}};
+  el.focus({{preventScroll:true}});
+  const active = document.activeElement;
+  const focused = el.isConnected && (active === el ||
+    (el.isContentEditable && active && active.isContentEditable && el.contains(active)));
+  if (!focused) return {{ok:false,error:'target did not receive focus; text was not inserted',selector}};
+  return {{ok:true,selector,tag:el.tagName,focus_verified:true}};
 }})()
 """
 
@@ -622,28 +658,98 @@ def command_eval(args: argparse.Namespace) -> Dict[str, Any]:
 
 def command_navigate(args: argparse.Namespace) -> Dict[str, Any]:
     client, tab = connect_target(args)
+    payload: Dict[str, Any] = {
+        "ok": True,
+        "action": "navigate",
+        "status": "dispatched",
+        "outcome_verified": False,
+        "target": summarize_tab(tab),
+        "url": args.url,
+        "result": {},
+        "load_event_seen": False,
+        "handled_js_dialogs": [],
+    }
     try:
-        result = client.call("Page.navigate", {"url": args.url})
-        load_seen = False
         if args.wait_load:
-            deadline = time.time() + args.timeout
-            while time.time() < deadline:
-                for event in client.drain_events(0.25):
-                    if event.get("method") == "Page.loadEventFired":
-                        load_seen = True
+            # Lifecycle load events carry the navigation's frame and loader IDs;
+            # Page.loadEventFired alone can belong to an earlier navigation.
+            client.call("Page.setLifecycleEventsEnabled", {"enabled": True})
+            client.drain_events(0)
+        result = client.call("Page.navigate", {"url": args.url})
+        payload["result"] = result
+        if result.get("isDownload"):
+            payload.update(ok=False, status="download", error="navigation initiated a download instead of loading a page")
+        elif result.get("errorText"):
+            payload.update(ok=False, status="failed", error=result["errorText"])
+        elif args.wait_load:
+            frame_id, loader_id = result.get("frameId"), result.get("loaderId")
+            deadline = time.monotonic() + args.timeout
+            while time.monotonic() < deadline:
+                if not loader_id and frame_id:
+                    # CDP omits loaderId for same-document navigation. Such a
+                    # navigation does not emit a new document load event.
+                    state = runtime_evaluate(client, f"({{href:location.href,requested:new URL({js_string(args.url)},location.href).href}})",
+                                             timeout=min(args.cdp_timeout, max(0.01, deadline - time.monotonic())))
+                    if isinstance(state, dict) and state.get("href") and state.get("href") == state.get("requested"):
+                        payload["status"] = "same-document"
                         break
-                if load_seen:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
                     break
-        handled = maybe_accept_js_dialogs(client, args)
-        return {
-            "ok": True,
-            "action": "navigate",
-            "target": summarize_tab(tab),
-            "url": args.url,
-            "result": result,
-            "load_event_seen": load_seen,
-            "handled_js_dialogs": handled,
-        }
+                for event in client.drain_events(min(0.25, remaining)):
+                    params = event.get("params", {})
+                    if (event.get("method") == "Page.lifecycleEvent" and params.get("name") == "load"
+                            and frame_id and loader_id and params.get("frameId") == frame_id
+                            and params.get("loaderId") == loader_id):
+                        payload.update(status="loaded", load_event_seen=True)
+                        break
+                if payload["load_event_seen"]:
+                    break
+            if payload["status"] == "dispatched":
+                payload.update(ok=False, status="timeout", error=f"navigation was dispatched but its load was not confirmed within {args.timeout} seconds")
+        payload["handled_js_dialogs"] = maybe_accept_js_dialogs(client, args)
+        return payload
+    except TimeoutError as exc:
+        payload.update(ok=False, status="timeout", error=str(exc))
+        return payload
+    except Exception as exc:  # noqa: BLE001 - retain navigation context without retrying an uncertain operation
+        payload.update(ok=False, status="failed", error=str(exc))
+        return payload
+    finally:
+        client.close()
+
+
+def command_read_page(args: argparse.Namespace) -> Dict[str, Any]:
+    client, tab = connect_target(args)
+    payload: Dict[str, Any] = {"ok": False, "action": "read-page", "target": summarize_tab(tab)}
+    try:
+        if args.wait_selector:
+            deadline = time.monotonic() + args.timeout
+            ready = False
+            while time.monotonic() < deadline:
+                remaining = deadline - time.monotonic()
+                ready = runtime_evaluate(client, f"Boolean(document.querySelector({js_string(args.wait_selector)}))",
+                                         timeout=min(args.cdp_timeout, max(0.01, remaining)))
+                if ready:
+                    break
+                time.sleep(min(0.1, max(0.0, deadline - time.monotonic())))
+            if not ready:
+                return {**payload, "status": "timeout",
+                        "error": f"read-page wait selector was not found within {args.timeout} seconds: {args.wait_selector}"}
+        options = {"selector": args.selector or None, "maxChars": args.max_chars, "maxLinks": args.max_links}
+        expression = Path(__file__).with_name("read_page.js").read_text(encoding="utf-8")
+        expression = expression.replace("__WEBMIND_OPTIONS__", json.dumps(options, ensure_ascii=False))
+        value = runtime_evaluate(client, expression, timeout=args.cdp_timeout)
+        if not isinstance(value, dict):
+            return {**payload, "status": "failed", "error": "page extraction returned an invalid result"}
+        payload.update(ok=bool(value.get("ok")), page=value)
+        if not payload["ok"]:
+            payload.update(status="failed", error=value.get("error", "page extraction failed"))
+        return payload
+    except TimeoutError as exc:
+        return {**payload, "status": "timeout", "error": str(exc)}
+    except Exception as exc:  # noqa: BLE001 - keep extraction errors in the CLI result
+        return {**payload, "status": "failed", "error": str(exc)}
     finally:
         client.close()
 
@@ -660,6 +766,7 @@ def command_wait_for_selector(args: argparse.Namespace) -> Dict[str, Any]:
             time.sleep(args.interval)
         return {
             "ok": False,
+            "error": f"selector was not ready within {args.timeout} seconds",
             "action": "wait-for-selector",
             "target": summarize_tab(tab),
             "selector": args.selector,
@@ -673,9 +780,9 @@ def command_wait_for_selector(args: argparse.Namespace) -> Dict[str, Any]:
 def command_click(args: argparse.Namespace) -> Dict[str, Any]:
     client, tab = connect_target(args)
     try:
-        info = runtime_evaluate(client, selector_center_script(args.selector, visible=True), timeout=args.cdp_timeout)
+        info = runtime_evaluate(client, selector_center_script(args.selector, visible=True, actionable=True), timeout=args.cdp_timeout)
         if not isinstance(info, dict) or not info.get("ok"):
-            return {"ok": False, "action": "click", "target": summarize_tab(tab), "result": info}
+            return action_payload("click", tab, info, ok=False)
         point = info["point"]
         x = float(point["x"])
         y = float(point["y"])
@@ -683,7 +790,7 @@ def command_click(args: argparse.Namespace) -> Dict[str, Any]:
         client.call("Input.dispatchMouseEvent", {"type": "mousePressed", "x": x, "y": y, "button": "left", "clickCount": 1})
         client.call("Input.dispatchMouseEvent", {"type": "mouseReleased", "x": x, "y": y, "button": "left", "clickCount": 1})
         handled = maybe_accept_js_dialogs(client, args)
-        return {"ok": True, "action": "click", "target": summarize_tab(tab), "element": info, "handled_js_dialogs": handled}
+        return {**action_payload("click", tab, ok=True), "element": info, "handled_js_dialogs": handled}
     finally:
         client.close()
 
@@ -693,7 +800,10 @@ def command_fill(args: argparse.Namespace) -> Dict[str, Any]:
     try:
         result = runtime_evaluate(client, fill_script(args.selector, args.text), timeout=args.cdp_timeout)
         handled = maybe_accept_js_dialogs(client, args)
-        return {"ok": bool(isinstance(result, dict) and result.get("ok")), "action": "fill", "target": summarize_tab(tab), "result": result, "handled_js_dialogs": handled}
+        ok = bool(isinstance(result, dict) and result.get("ok"))
+        return {**action_payload("fill", tab, result, ok=ok),
+                "immediate_value_verified": bool(isinstance(result, dict) and result.get("immediate_value_verified")),
+                "handled_js_dialogs": handled}
     finally:
         client.close()
 
@@ -703,11 +813,14 @@ def command_insert_text(args: argparse.Namespace) -> Dict[str, Any]:
     try:
         focus_result = runtime_evaluate(client, selector_center_script(args.selector, visible=True), timeout=args.cdp_timeout)
         if not isinstance(focus_result, dict) or not focus_result.get("ok"):
-            return {"ok": False, "action": "insert-text", "target": summarize_tab(tab), "result": focus_result}
-        runtime_evaluate(client, f"document.querySelector({js_string(args.selector)}).focus()", timeout=args.cdp_timeout)
+            return action_payload("insert-text", tab, focus_result, ok=False)
+        editable_focus = runtime_evaluate(client, focus_editable_script(args.selector), timeout=args.cdp_timeout)
+        if not isinstance(editable_focus, dict) or not editable_focus.get("ok"):
+            return action_payload("insert-text", tab, editable_focus, ok=False)
         client.call("Input.insertText", {"text": args.text})
         handled = maybe_accept_js_dialogs(client, args)
-        return {"ok": True, "action": "insert-text", "target": summarize_tab(tab), "element": focus_result, "handled_js_dialogs": handled}
+        return {**action_payload("insert-text", tab, ok=True), "element": focus_result,
+                "focus_verified": True, "handled_js_dialogs": handled}
     finally:
         client.close()
 
@@ -721,7 +834,7 @@ def command_press(args: argparse.Namespace) -> Dict[str, Any]:
         client.call("Input.dispatchKeyEvent", down)
         client.call("Input.dispatchKeyEvent", up)
         handled = maybe_accept_js_dialogs(client, args)
-        return {"ok": True, "action": "press", "target": summarize_tab(tab), "key": args.key, "handled_js_dialogs": handled}
+        return {**action_payload("press", tab, ok=True), "key": args.key, "handled_js_dialogs": handled}
     finally:
         client.close()
 
@@ -762,13 +875,45 @@ def summarize_tab(tab: Dict[str, Any]) -> Dict[str, Any]:
     return {"id": tab.get("id"), "title": tab.get("title"), "url": tab.get("url"), "type": tab.get("type")}
 
 
+def action_payload(action: str, tab: Dict[str, Any], result: Any = None, *, ok: bool) -> Dict[str, Any]:
+    """Input dispatch and immediate DOM checks do not verify a task's outcome."""
+    payload: Dict[str, Any] = {"ok": ok, "action": action, "target": summarize_tab(tab),
+                               "status": "dispatched" if ok else "failed", "outcome_verified": False}
+    if result is not None:
+        payload["result"] = result
+    if not ok:
+        payload["error"] = result.get("error", "element action failed") if isinstance(result, dict) else "element action returned an invalid result"
+    return payload
+
+
 def add_target_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--target-id", help="CDP target id from the tabs command")
-    parser.add_argument("--url-contains", help="select first tab whose URL contains this text")
-    parser.add_argument("--title-contains", help="select first tab whose title contains this text")
-    parser.add_argument("--cdp-timeout", type=float, default=10.0, help="CDP command timeout in seconds")
+    parser.add_argument("--url-contains", help="filter page targets by URL; combine with title filter to select one page")
+    parser.add_argument("--title-contains", help="filter page targets by title; ambiguous matches are refused")
+    parser.add_argument("--cdp-timeout", type=positive_float, default=10.0, help="CDP command timeout in seconds")
     parser.add_argument("--accept-js-dialogs", action="store_true", help="accept JavaScript dialogs observed after the command")
     parser.add_argument("--dialog-drain", type=float, default=0.5, help="seconds to look for JavaScript dialogs after a command")
+
+
+def positive_float(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number) or number <= 0:
+        raise argparse.ArgumentTypeError("must be a finite number greater than zero")
+    return number
+
+
+def positive_int(value: str) -> int:
+    number = int(value)
+    if number <= 0:
+        raise argparse.ArgumentTypeError("must be an integer greater than zero")
+    return number
+
+
+def nonnegative_int(value: str) -> int:
+    number = int(value)
+    if number < 0:
+        raise argparse.ArgumentTypeError("must be a nonnegative integer")
+    return number
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -812,9 +957,19 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--json", action="store_true", default=argparse.SUPPRESS)
     add_target_args(p)
     p.add_argument("--url", required=True, help="URL to navigate to")
-    p.add_argument("--wait-load", action="store_true", help="wait for Page.loadEventFired")
-    p.add_argument("--timeout", type=float, default=15.0, help="load wait timeout in seconds")
+    p.add_argument("--wait-load", action="store_true", help="wait for this navigation's load, or confirm a same-document URL")
+    p.add_argument("--timeout", type=positive_float, default=15.0, help="load wait timeout in seconds")
     p.set_defaults(func=command_navigate)
+
+    p = sub.add_parser("read-page", help="read bounded page text, headings, and links from the rendered DOM")
+    p.add_argument("--json", action="store_true", default=argparse.SUPPRESS)
+    add_target_args(p)
+    p.add_argument("--selector", help="optional observed CSS selector for the content container")
+    p.add_argument("--max-chars", type=positive_int, default=20000, help="maximum extracted text characters")
+    p.add_argument("--max-links", type=nonnegative_int, default=100, help="maximum returned links; zero omits links")
+    p.add_argument("--wait-selector", help="wait until this observed CSS selector exists before reading")
+    p.add_argument("--timeout", type=positive_float, default=10.0, help="selector wait timeout in seconds")
+    p.set_defaults(func=command_read_page)
 
     p = sub.add_parser("wait-for-selector", help="wait until a selector exists")
     p.add_argument("--json", action="store_true", default=argparse.SUPPRESS)
@@ -890,6 +1045,10 @@ def main() -> int:
             print(f"output: {result['output']}")
         if "value" in result:
             print(result["value"])
+        if "page" in result:
+            json_print(result["page"])
+        if not result.get("ok") and result.get("error"):
+            print(f"error: {result['error']}", file=sys.stderr)
     return 0 if result.get("ok") else 1
 
 

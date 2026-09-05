@@ -2,17 +2,18 @@
 
 **A standalone browser skill for AI coding agents, powered by Chrome DevTools Protocol.**
 
-[简体中文](README.zh-CN.md) · [Skill instructions](SKILL.md) · [Command reference](references/commands.md)
+[简体中文](README.zh-CN.md) · [Skill instructions](SKILL.md) · [Command reference](references/commands.md) · [Reading workflows](examples/reading-workflows.md)
 
 WebMind gives a host agent a small Python CLI to inspect and operate a dedicated Chrome or Chromium browser. The host's language model chooses actions and interprets results; WebMind supplies the browser controls. It includes no AI model and requires no third-party Python packages.
 
 ## Features
 
 - Reuse a persistent browser profile with its own login state and cookies.
-- List tabs, select a target, navigate, and read the DOM with JavaScript.
+- Read page text, headings, and links with `read-page`; use JavaScript for custom DOM queries.
+- List tabs, select a unique page target, and navigate with explicit status reporting.
 - Wait for selectors, click elements, fill fields, insert text, and press keys.
 - Capture viewport PNG screenshots and handle JavaScript dialogs.
-- Return JSON for agent workflows through 12 focused commands.
+- Return JSON for agent workflows through 13 focused commands.
 
 ## Requirements
 
@@ -59,14 +60,15 @@ python3 scripts/webmind.py launch --json
 python3 scripts/webmind.py tabs --json
 ```
 
-Copy the intended page's `id` from `tabs`, replace `TAB_ID` below, then navigate and read it:
+Copy the intended `type: "page"` entry's `id` from `tabs`, replace `TAB_ID` below, then navigate and read it:
 
 ```bash
 python3 scripts/webmind.py navigate --target-id TAB_ID --url "https://example.com" --wait-load --json
-python3 scripts/webmind.py wait-for-selector --target-id TAB_ID --selector "h1" --visible --json
-python3 scripts/webmind.py eval --target-id TAB_ID --expression "({title: document.title, url: location.href, text: document.body.innerText})" --json
+python3 scripts/webmind.py read-page --target-id TAB_ID --wait-selector "h1" --max-chars 20000 --max-links 100 --json
 python3 scripts/webmind.py screenshot --target-id TAB_ID --output page.png --json
 ```
+
+`read-page` returns the page title, URL, language, extracted text, headings, and deduplicated HTTP(S) links, together with extraction and truncation metadata. It chooses a likely main-content region heuristically; use `--selector` to read a specific observed region and `eval` for custom DOM queries. See [reading workflows](examples/reading-workflows.md) for login sessions, dynamic content, and recovery examples.
 
 `launch` reuses a responding endpoint. Its `--url` only applies when starting a browser, so use `navigate` to open a URL reliably on an existing target. `tabs` and target commands can launch the dedicated browser automatically when the local endpoint is unavailable. `self-check` only checks the endpoint.
 
@@ -97,11 +99,12 @@ The launcher binds debugging to loopback by default. The Python CDP connection b
 
 ## Commands and boundaries
 
-The commands are `self-check`, `tabs`, `launch`, `eval`, `navigate`, `wait-for-selector`, `click`, `fill`, `insert-text`, `press`, `screenshot`, and `handle-js-dialog`. See the [command reference](references/commands.md) for options and examples.
+The commands are `self-check`, `tabs`, `launch`, `read-page`, `eval`, `navigate`, `wait-for-selector`, `click`, `fill`, `insert-text`, `press`, `screenshot`, and `handle-js-dialog`. See the [command reference](references/commands.md) for options and result fields.
 
-- Prefer `--target-id` from an observed entry with `type: "page"`. Automatic selection prefers page targets but can fall back to another debuggable target if no page is available; URL/title filters select the first match.
-- A successful `click` or `fill` response confirms the operation was issued, not that the website accepted it. Read the resulting DOM, field value, or page state to verify the outcome.
-- A load event does not guarantee that dynamic content is ready. Wait for the needed selector or inspect page state.
+- Prefer `--target-id` from an observed entry with `type: "page"`. Target selection requires a unique matching page; ambiguous matches and non-page targets are rejected.
+- Navigation reports `loaded`, `same-document`, `dispatched`, `failed`, `download`, or `timeout`. Navigation errors and wait timeouts return `ok: false` with a nonzero exit code. A load event does not establish that dynamic content is ready.
+- Input commands report `status: "dispatched"` and `outcome_verified: false` when issued successfully. A fill's `immediate_value_verified: true` only checks the immediate field value. Read the resulting DOM, validation message, or page state to verify the website's outcome.
+- `read-page` takes a heuristic snapshot of the current document. It can miss content or choose the wrong region; inspect its extraction and truncation metadata. It does not perform OCR, extract through iframes or Shadow DOM, or bypass login and access restrictions.
 - Screenshots capture the page viewport, not the full document or desktop.
 - Native file pickers, browser permission bubbles, extension UI, and OS dialogs are outside the CLI's scope. The host may use its available GUI tools when needed. No other skill package is required.
 - Browser actions remain subject to the user's request and the host agent's authorization rules.
@@ -114,7 +117,7 @@ Run the unit suite from the repository root:
 python3 -m unittest discover -s tests -v
 ```
 
-Browser integration tests are opt-in:
+Browser integration tests are opt-in. They exercise task scenarios in a real Chrome browser against a local HTTP test site:
 
 ```bash
 WEBMIND_TEST_CHROME=/absolute/path/to/chrome python3 -m unittest discover -s tests -v
@@ -126,6 +129,8 @@ In PowerShell:
 $env:WEBMIND_TEST_CHROME = "C:\path\to\chrome.exe"
 py -3 -m unittest discover -s tests -v
 ```
+
+These controlled tests check extraction and browser behavior, including failure cases. They are separate from an end-to-end benchmark on public websites and do not establish a general website task success rate.
 
 An optional [GitHub Actions template](examples/github-actions-checks.yml) runs the offline tests on macOS, Linux, and Windows with Python 3.10 and 3.12. To enable it, copy the template to `.github/workflows/checks.yml` using a GitHub account or token with workflow permissions. The template does not run automatically from `examples/`.
 

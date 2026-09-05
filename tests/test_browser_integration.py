@@ -16,8 +16,9 @@ SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "webmind.py"
 CHROME = os.environ.get("WEBMIND_TEST_CHROME")
 
 
-@unittest.skipUnless(CHROME, "Set WEBMIND_TEST_CHROME to run the isolated browser test")
-class BrowserIntegrationTests(unittest.TestCase):
+class IsolatedBrowserTestCase(unittest.TestCase):
+    """Shared harness; every command connects only to this class's Chrome."""
+
     @classmethod
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory(prefix="webmind-test-")
@@ -60,7 +61,7 @@ class BrowserIntegrationTests(unittest.TestCase):
                 cls.browser.kill()
                 cls.browser.wait(timeout=5)
 
-    def cli(self, *args):
+    def cli_result(self, *args):
         result = subprocess.run(
             [
                 sys.executable, "-X", "utf8", str(SCRIPT),
@@ -68,10 +69,27 @@ class BrowserIntegrationTests(unittest.TestCase):
             ],
             capture_output=True, encoding="utf-8", timeout=20,
         )
-        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
-        payload = json.loads(result.stdout)
+        try:
+            payload = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            self.fail(f"CLI did not return JSON: {result.stdout}\n{result.stderr}")
+        return result.returncode, payload
+
+    def cli(self, *args):
+        returncode, payload = self.cli_result(*args)
+        self.assertEqual(returncode, 0, payload)
         self.assertTrue(payload["ok"], payload)
         return payload
+
+    def cli_error(self, *args):
+        returncode, payload = self.cli_result(*args)
+        self.assertNotEqual(returncode, 0, payload)
+        self.assertFalse(payload["ok"], payload)
+        return payload
+
+
+@unittest.skipUnless(CHROME, "Set WEBMIND_TEST_CHROME to run the isolated browser test")
+class BrowserIntegrationTests(IsolatedBrowserTestCase):
 
     def test_read_fill_click_and_capture_page(self):
         self.cli("self-check")

@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>动态内容样例</title></head>
+<body><main id="dynamic"><p>正在加载</p></main>
+<script>
+window.loadArticle = () => setTimeout(() => {
+  document.querySelector('#dynamic').innerHTML = '<article id="ready"><h1>异步文章</h1><p>动态渲染完成后的正文。</p></article>';
+}, 1200);
+</script>
+</body></html>

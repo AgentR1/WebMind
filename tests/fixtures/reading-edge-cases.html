@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>阅读边界样例</title></head>
+<body>
+<nav><article id="nav-promo"><h1>Navigation promotion</h1><p></p></article></nav>
+<main>
+<article id="primary">
+  <h1>需要读取的主文章</h1>
+  <p>PRIMARY_ARTICLE_TEXT 这是用户需要读取的正常正文，侧边栏和导航中的推广文章不应抢占正文选择。</p>
+  <details id="folded">
+    <summary>折叠摘要仍应可读</summary>
+    <div id="collapsed-content"><p>COLLAPSED_PRIVATE_TEXT</p><a href="/detail-link">折叠正文链接</a></div>
+  </details>
+</article>
+</main>
+<aside><article id="aside-promo"><h1>Aside promotion</h1><p></p></article></aside>
+<script>
+document.querySelector('#nav-promo p').textContent = 'NAV_ARTICLE_NOISE '.repeat(200);
+document.querySelector('#aside-promo p').textContent = 'ASIDE_ARTICLE_NOISE '.repeat(150);
+</script>
+</body></html>
