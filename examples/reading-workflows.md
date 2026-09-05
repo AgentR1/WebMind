@@ -4,6 +4,8 @@ These examples run from the WebMind directory with Python 3.10+. On Windows, `py
 
 The host agent chooses actions and evaluates the evidence. A CLI response describes a browser operation or extraction, not an independently completed user task.
 
+For a concrete web task, consult relevant prior experience using the [memory guide](../references/memory.md). Check it against the current page, then verify the outcome before proposing a new lesson. Persistent records follow the host's memory permissions. For the full experience/browser/desktop flow, see [full workflow](full-workflow.md).
+
 ## Read a webpage
 
 ```bash
@@ -33,7 +35,7 @@ python3 scripts/webmind.py tabs --json
 python3 scripts/webmind.py read-page --target-id TAB_ID --json
 ```
 
-Check that the returned URL and text show the requested content. A login screen, access-denied page, or expired-session message is not evidence that the private content was read. Complete any required login or access step through the host's available browser/GUI workflow, then read the page again. The CLI does not bypass authentication or grant access.
+Check that the returned URL and text show the requested content. A login screen, access-denied page, or expired-session message is not evidence that the private content was read. Complete any required login or access step through the authorized browser/desktop workflow, then read the page again. Native UI uses the Screenshot/Mouse/Typing module guides, or suitable host GUI tools. WebMind does not bypass authentication or grant access.
 
 For an already observed, unique content container:
 
@@ -107,7 +109,7 @@ python3 scripts/webmind.py --endpoint http://127.0.0.1:9334 --no-auto-launch sel
 python3 scripts/webmind.py --endpoint http://127.0.0.1:9334 tabs --json
 ```
 
-The second command may launch the dedicated browser if the local endpoint is unavailable. Do not reuse a profile concurrently on different ports; close its browser before changing ports or choose a separate profile. Native permission bubbles, file pickers, and OS dialogs require the host's GUI tools.
+The second command may launch the dedicated browser if the local endpoint is unavailable. Do not reuse a profile concurrently on different ports; close its browser before changing ports or choose a separate profile. For native permission bubbles, file pickers, and OS dialogs, inspect a desktop screenshot and follow the relevant [screenshot](../references/screenshot.md), [mouse](../references/mouse.md), and [typing](../references/typing.md) guides before acting.
 
 ## What the tests establish
 

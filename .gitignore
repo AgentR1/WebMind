@@ -7,6 +7,11 @@ chrome-profile/
 *.pem
 *.key
 
+# Runtime experience belongs outside the public repository.
+**/Mem/
+!templates/Mem/
+!templates/Mem/**
+
 # Python environments and caches
 .venv/
 venv/

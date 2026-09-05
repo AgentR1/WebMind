@@ -1,1 +1,2 @@
-# WebMind uses only the Python standard library.
+# WebMind Core and Experience (Memory) use only the Python standard library.
+# For desktop screenshot, mouse, and typing tools, install requirements-desktop.txt.

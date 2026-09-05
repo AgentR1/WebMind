@@ -1,4 +1,4 @@
 interface:
   display_name: "WebMind"
-  short_description: "Read and operate browser pages through CDP"
-  default_prompt: "Use $webmind to read the target webpage, perform any requested browser actions, and verify the result."
+  short_description: "Browser, desktop, and reusable local experience"
+  default_prompt: "Use $webmind to complete the requested web task, consult relevant experience, and verify the result."
