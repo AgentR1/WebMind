@@ -167,3 +167,8 @@ py -3 -m unittest discover -s tests -v
 使用 [MIT License](LICENSE) 发布。
 
 WebMind 源于整个 WebUse 工具集，包含浏览器、记忆、截图、鼠标、键盘与等待组件，在此基础上适配和扩展为统一分发的独立 Skill 套件。
+
+## 项目成员
+
+- 开发者（Developer）：Zhengdao Li
+- 指导者（Supervisor）：Mingyue Cheng

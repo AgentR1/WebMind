@@ -167,3 +167,8 @@ An optional [GitHub Actions template](examples/github-actions-checks.yml) runs t
 Released under the [MIT License](LICENSE).
 
 WebMind originates from the WebUse toolkit, including its browser, memory, screenshot, mouse, typing, and wait components, adapted and extended here as one standalone skill suite.
+
+## Credits
+
+- Developer: Zhengdao Li
+- Supervisor: Mingyue Cheng
