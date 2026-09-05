@@ -1,0 +1,4 @@
+interface:
+  display_name: "WebMind"
+  short_description: "Inspect and operate browser pages through CDP"
+  default_prompt: "Use $webmind to inspect the target browser page, perform the requested action, and verify the result."

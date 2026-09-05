@@ -1,0 +1,34 @@
+# Browser state and secrets
+chrome-profile/
+**/chrome-profile/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyc.*
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated browser output
+screenshots/
+artifacts/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.log
+*.tmp
+
+# Local editors and operating systems
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
