@@ -1,10 +1,10 @@
 # WebMind
 
-**统一浏览器控制、桌面交互和本地经验复用的完整 Skill 套件。**
+**WebMind 是一个让 AI Agent 操作网页并积累站点经验的 Web Skill。**
 
 [English](README.md) · [Skill 指令](SKILL.md) · [浏览器命令](references/commands.md) · [阅读工作流](examples/reading-workflows.md) · [完整工作流](examples/full-workflow.md)
 
-WebMind 是面向 AI 编程助手的完整自动化 Skill 套件，通过单一 `$webmind` 入口调用。六个模块覆盖专用 Chrome / Chromium 浏览器、本地经验文件、截图、鼠标、键盘输入和等待。行动选择与结果理解由宿主的大语言模型完成，WebMind 提供指引和工具，不内置 AI 模型。
+WebMind 通过单一 `$webmind` 入口调用，内部六个模块覆盖专用 Chrome / Chromium 浏览器、站点经验文件、截图、鼠标、键盘输入和等待。行动选择与结果理解由宿主的大语言模型完成，WebMind 提供指引和工具，不内置 AI 模型。
 
 ## 六个模块
 

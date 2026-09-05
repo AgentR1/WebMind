@@ -1,10 +1,10 @@
 # WebMind
 
-**One skill for browser control, desktop interaction, and reusable local experience.**
+**WebMind is a Web Skill that enables AI agents to operate webpages and accumulate site-specific experience.**
 
 [简体中文](README.zh-CN.md) · [Skill instructions](SKILL.md) · [Browser commands](references/commands.md) · [Reading workflows](examples/reading-workflows.md) · [Full workflow](examples/full-workflow.md)
 
-WebMind is a complete automation skill suite for AI coding agents, exposed through a single `$webmind` entry point. Its six modules cover a dedicated Chrome or Chromium browser, local experience files, screenshots, mouse control, keyboard input, and waiting. The host's language model chooses actions and interprets results; WebMind provides instructions and tools, not an AI model.
+WebMind is exposed through a single `$webmind` entry point. Its six internal modules cover a dedicated Chrome or Chromium browser, site experience files, screenshots, mouse control, keyboard input, and waiting. The host's language model chooses actions and interprets results; WebMind provides instructions and tools, not an AI model.
 
 ## Six modules
 
