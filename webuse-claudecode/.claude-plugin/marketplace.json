@@ -1,0 +1,12 @@
+{
+  "name": "webuse-local",
+  "owner": {
+    "name": "WebUse"
+  },
+  "plugins": [
+    {
+      "name": "webuse",
+      "source": "."
+    }
+  ]
+}

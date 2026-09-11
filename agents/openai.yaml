@@ -1,4 +1,0 @@
-interface:
-  display_name: "WebMind"
-  short_description: "Browser, desktop, and reusable local experience"
-  default_prompt: "Use $webmind to complete the requested web task, consult relevant experience, and verify the result."

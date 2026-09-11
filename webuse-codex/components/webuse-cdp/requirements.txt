@@ -1,0 +1,2 @@
+# Only needed for the default CDP pointer annotation in screenshots.
+Pillow>=10.1.0,<13

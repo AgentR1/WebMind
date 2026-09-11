@@ -1,0 +1,17 @@
+{
+  "successful": true,
+  "tests_run": 103,
+  "passed": 100,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 3,
+  "skip_reasons": [
+    "Windows command-line fallback",
+    "Windows path comparison",
+    "Windows command-line fallback"
+  ],
+  "browser_tests_requested": false,
+  "platform": "linux",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "native_desktop_tested": false
+}

@@ -1,4 +1,0 @@
-# Optional desktop capture and input dependencies. Core and Memory use only stdlib.
-mss>=9.0.1
-Pillow>=10.0.0
-pyautogui>=0.9.54
