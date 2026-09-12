@@ -16,8 +16,10 @@ venv/
 *.pem
 *.p12
 *.pfx
-components/webmind-mem/mem-location.json
 *-mem/
+!components/webmind-mem/
+!components/webmind-mem/**
+components/webmind-mem/mem-location.json
 *-Profile/
 webmind-profile.json
 screenshots/
