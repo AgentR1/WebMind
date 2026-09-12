@@ -1,0 +1,9 @@
+interface:
+  display_name: WebMind for Codex (macOS)
+  short_description: Local browser, desktop and memory on macOS
+  default_prompt: Use $webmind-codex for this authorized local browser or desktop task.
+    Read relevant memory first, verify actions, and reconcile useful experience afterward.
+  icon_small: ./assets/icon.svg
+  icon_large: ./assets/icon.svg
+policy:
+  allow_implicit_invocation: true

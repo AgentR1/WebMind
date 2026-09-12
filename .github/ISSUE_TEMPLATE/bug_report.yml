@@ -1,0 +1,49 @@
+name: Bug report
+description: 报告可复现的问题；不要提交敏感数据或漏洞细节
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。安全漏洞请使用 SECURITY.md 中的私密渠道。粘贴日志前请删除账号、URL 参数、路径、页面内容和其他敏感信息。
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 发布版本或 commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境
+      description: macOS、Python、Codex 载体与浏览器版本
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 使用脱敏示例说明最小复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 仅附上经过检查和脱敏的输出
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我已移除凭据、Cookie、令牌、Profile、Mem、私人页面内容和本机可识别路径。
+          required: true
