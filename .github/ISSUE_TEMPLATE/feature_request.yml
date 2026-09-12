@@ -1,0 +1,25 @@
+name: Feature request
+description: 建议新的能力或改进
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 要解决的问题
+      description: 请描述使用场景和当前限制，不要包含账号或敏感数据
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: 安全和兼容性影响
+      description: 是否涉及外部状态变更、权限、数据保存或新的系统要求？
+    validations:
+      required: true

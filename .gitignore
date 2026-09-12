@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.venv/
+.tmp-*/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+*.png
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+.claude/settings.local.json
+skills/webmind-mem/mem-location.json
+**/*-Profile/
+**/webmind-profile.json
+**/DevToolsActivePort
+**/Cookies
+**/Cookies-journal
+**/Login Data
+**/Login Data-journal

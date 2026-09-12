@@ -1,0 +1,8 @@
+{
+  "edition": "windows-claudecode",
+  "version": "1.0.2",
+  "platform": "Windows",
+  "host": "claudecode",
+  "install_id": "webmind-claudecode",
+  "python": ">=3.10"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "webmind-claudecode",
+  "version": "1.0.2",
+  "description": "WebMind for Claude Code on Windows: local CDP browser, desktop input, screenshots, waits and external memory.",
+  "license": "MIT",
+  "author": {
+    "name": "webmind-claudecode contributors"
+  }
+}

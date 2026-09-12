@@ -1,0 +1,49 @@
+name: Bug report
+description: 报告可复现的问题；请勿包含敏感数据
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先删除日志中的用户名、绝对路径、Mem 名称、账号信息和其他敏感数据。安全漏洞请使用 Security 页面私下报告。
+  - type: input
+    id: version
+    attributes:
+      label: 插件版本
+      placeholder: 例如 1.0.2
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 环境
+      description: Windows、Python、Claude Code 和浏览器版本
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 请提供最小、可重复且不含秘密的步骤
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我已删除凭据、Cookie、Profile、截图、个人信息和本机专用路径
+          required: true

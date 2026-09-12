@@ -1,0 +1,14 @@
+{
+  "name": "webmind-claudecode",
+  "description": "WebMind browser and desktop automation plugin for Claude Code on Windows.",
+  "owner": {
+    "name": "webmind-claudecode contributors"
+  },
+  "plugins": [
+    {
+      "name": "webmind-claudecode",
+      "source": "./",
+      "description": "Local CDP browser, desktop input, screenshots, waits and external memory for Windows."
+    }
+  ]
+}
