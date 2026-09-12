@@ -1,0 +1,15 @@
+name: Security contact request
+description: 仅请求私下联系渠道，不要在此填写漏洞细节
+title: "[Security contact]: "
+labels: [security]
+body:
+  - type: markdown
+    attributes:
+      value: 请先尝试仓库 Security 页面中的私有漏洞报告。此表单仅用于请求私下联系渠道，请勿写入漏洞细节、利用方法或敏感数据。
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: 确认
+      options:
+        - label: 我没有在此公开表单中填写漏洞细节或敏感数据。
+          required: true

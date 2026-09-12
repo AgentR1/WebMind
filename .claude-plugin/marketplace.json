@@ -1,0 +1,14 @@
+{
+  "name": "webmind-claudecode",
+  "description": "WebMind plugin distribution for Claude Code on macOS.",
+  "owner": {
+    "name": "WebMind contributors"
+  },
+  "plugins": [
+    {
+      "name": "webmind-claudecode",
+      "source": "./",
+      "description": "Local browser and desktop automation for Claude Code on macOS."
+    }
+  ]
+}

@@ -1,9 +1,0 @@
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-.pytest_cache/
-.DS_Store
-.webuse-install.json
-.agents/
-*.zip

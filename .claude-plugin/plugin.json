@@ -1,0 +1,8 @@
+{
+  "name": "webmind-claudecode",
+  "version": "1.0.2",
+  "description": "WebMind for Claude Code on macOS: local CDP browser, desktop input, screenshots, waits and external memory.",
+  "author": {
+    "name": "WebMind contributors"
+  }
+}
