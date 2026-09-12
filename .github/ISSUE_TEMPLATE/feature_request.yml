@@ -1,0 +1,25 @@
+name: 功能建议
+description: 提议一个符合现有安全边界的改进
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 使用场景
+      description: 说明要解决的问题，不要包含真实账号或敏感页面内容。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: 安全与隐私影响
+      description: 说明对授权、Profile、Mem、截图、输入或外部状态的影响。
+    validations:
+      required: true

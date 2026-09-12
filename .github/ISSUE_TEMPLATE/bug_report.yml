@@ -1,0 +1,58 @@
+name: 缺陷报告
+description: 报告可复现的功能问题；不要提交敏感数据
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先删除用户名、绝对路径、账号内容、Cookie、令牌、Profile 和截图中的隐私信息。安全漏洞请改用仓库的私密漏洞报告入口。
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      placeholder: 例如 2.0.3
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: 组件
+      options:
+        - 安装或诊断
+        - CDP / DOM
+        - 截图
+        - 鼠标
+        - 键盘
+        - 等待
+        - Mem
+        - 文档
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 使用合成或脱敏数据说明预期与实际结果。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境
+      description: 可提供 Windows、Python、浏览器和 Codex 版本；不要提供用户名或完整绝对路径。
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我已删除凭据、账号内容、活动 Mem/Profile、本机绝对路径和敏感截图。
+          required: true

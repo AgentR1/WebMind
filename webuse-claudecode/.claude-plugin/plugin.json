@@ -1,8 +1,0 @@
-{
-  "name": "webuse",
-  "version": "1.0.0",
-  "description": "Cross-platform Claude Code skills for CDP browser control, screenshots, mouse and keyboard automation, waits, and durable task memory.",
-  "author": {
-    "name": "WebUse"
-  }
-}

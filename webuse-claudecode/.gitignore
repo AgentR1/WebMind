@@ -1,6 +1,0 @@
-__pycache__/
-*.py[cod]
-.DS_Store
-*.png
-chrome-profile/
-.venv/

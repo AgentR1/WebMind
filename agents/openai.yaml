@@ -1,0 +1,8 @@
+interface:
+  display_name: "WebMind for Codex (Windows)"
+  short_description: "Local browser, desktop, and memory on Windows"
+  default_prompt: "Use $webmind-codex for an authorized local browser or desktop task, reading relevant memory first and verifying each action."
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+policy:
+  allow_implicit_invocation: true

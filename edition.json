@@ -1,0 +1,7 @@
+{
+  "edition": "webmind-codex",
+  "version": "2.0.3",
+  "platform": "Windows",
+  "host": "codex",
+  "install_id": "webmind-codex"
+}
