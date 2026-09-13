@@ -9,6 +9,7 @@
 - 扩充忽略规则，防止活动 Mem、浏览器 Profile、安装元数据、密钥和截图被误提交。
 - 修复 Windows CRLF 输入文件未规范化为 LF 的问题。
 - 补全等待组件缺失的 PowerShell 启动示例，并修正文档链接。
+- 将 Mem 派生的 CDP 端口从旧规则迁移到 `9000 + yyy`（9001-9999），并为完全匹配旧规则的 schema-1 Profile 元数据提供显式初始化迁移。
 
 ## Earlier changes
 

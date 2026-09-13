@@ -28,7 +28,7 @@ name before `--accept-risk`. Explicitly explain during initialization that both 
 and `yyy` must each be unique among WebMind Mem folders on the same computer. Source
 holds only the location pointer. The browser profile
 is `<Mem-name>-Profile` inside the selected Mem, and its `webmind-profile.json` determines
-the profile and loopback port `1000 + yyy`. Read this before launching or connecting.
+the profile and loopback port `9000 + yyy` (range 9001-9999). Read this before launching or connecting.
 Do not ask for the Mem location again on normal later tasks; switching requires the
 initialization flow before or after a task. Never search/index browser profile contents.
 
