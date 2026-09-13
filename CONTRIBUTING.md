@@ -4,7 +4,7 @@
 
 ## 开始前
 
-1. 先阅读 `SKILL.md`、`使用教程.md`、`安全说明.md` 和相关组件的 `GUIDE.md`。
+1. 先阅读 `SKILL.md`、`使用教程.md`、`安全须知.md` 和相关组件的 `GUIDE.md`。
 2. 保留 CDP、截图、鼠标、键盘、等待和外部 Mem 六个组件。
 3. 不得删除 Profile 核验、初始化门禁、隐私规则或 PyAutoGUI failsafe。
 4. 不要提交活动 Mem、浏览器 Profile、位置指针、Cookie、截图、凭据、安装元数据或本机绝对路径。

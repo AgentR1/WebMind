@@ -1,6 +1,6 @@
 # WebMind Windows / Codex Safety Instructions
 
-[Chinese version](%E5%AE%89%E5%85%A8%E8%AF%B4%E6%98%8E.md)
+[Chinese version](%E5%AE%89%E5%85%A8%E9%A1%BB%E7%9F%A5.md)
 
 Read these Safety Instructions carefully before using the WebMind Windows / Codex Skill.
 
