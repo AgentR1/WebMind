@@ -9,19 +9,31 @@ $venvPython = Join-Path $dataRoot ".venv\Scripts\python.exe"
 $dispatcher = Join-Path $pluginRoot "scripts\webmind.py"
 
 if (Test-Path -LiteralPath $venvPython) {
-    & $venvPython $dispatcher @args
+    if ($MyInvocation.ExpectingInput) {
+        $input | & $venvPython $dispatcher @args
+    } else {
+        & $venvPython $dispatcher @args
+    }
     exit $LASTEXITCODE
 }
 
 $launcher = Get-Command py -ErrorAction SilentlyContinue
 if ($launcher) {
-    & $launcher.Source -3 $dispatcher @args
+    if ($MyInvocation.ExpectingInput) {
+        $input | & $launcher.Source -3 $dispatcher @args
+    } else {
+        & $launcher.Source -3 $dispatcher @args
+    }
     exit $LASTEXITCODE
 }
 
 $launcher = Get-Command python -ErrorAction SilentlyContinue
 if ($launcher) {
-    & $launcher.Source $dispatcher @args
+    if ($MyInvocation.ExpectingInput) {
+        $input | & $launcher.Source $dispatcher @args
+    } else {
+        & $launcher.Source $dispatcher @args
+    }
     exit $LASTEXITCODE
 }
 
