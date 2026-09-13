@@ -88,3 +88,8 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting improvements. Report v
 [MIT License](LICENSE)
 
 This project is licensed under the [MIT License](LICENSE).
+
+## 项目成员
+
+- 开发者（Developer）：Zhengdao Li
+- 指导者（Supervisor）：Mingyue Cheng
