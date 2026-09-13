@@ -4,7 +4,7 @@
 >
 > 你现在看到的是 Windows 下的 Claude Code 版，版本号 WC 1.0。
 >
-> You are viewing the Claude Code edition for Windows, version WC 1.0.
+> You are viewing the Claude Code edition for Windows, version WC 1.0. 
 
 # WebMind Windows / Claude Code
 
