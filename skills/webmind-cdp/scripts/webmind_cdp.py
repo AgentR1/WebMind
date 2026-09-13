@@ -37,7 +37,7 @@ MAX_STDIN_CHARS = 1_000_000
 MEM_NAME_RE = re.compile(r"^(?P<prefix>[a-z]{1,8})-(?P<number>[1-9][0-9]{0,2})-mem$")
 PROFILE_METADATA_FILE = "webmind-profile.json"
 LOCATION_SCHEMA_VERSION = 1
-PROFILE_SCHEMA_VERSION = 1
+PROFILE_SCHEMA_VERSION = 2
 CDP_SKILL_ROOT = Path(__file__).resolve().parents[1]
 MEM_SKILL_ROOT = CDP_SKILL_ROOT.parent / "webmind-mem"
 LOCATION_FILE = Path(os.environ.get("WEBMIND_MEM_LOCATION_FILE", str(MEM_SKILL_ROOT / "mem-location.json"))).expanduser()
@@ -58,7 +58,7 @@ def _parse_mem_name(name: str) -> Dict[str, Any]:
         )
     number = int(match.group("number"))
     return {
-        "debug_port": 1000 + number,
+        "debug_port": 9000 + number,
         "profile_name": f"{name}-Profile",
     }
 
