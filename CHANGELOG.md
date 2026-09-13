@@ -2,7 +2,7 @@
 
 本项目的重要变更记录在此文件中，版本号遵循 [Semantic Versioning](https://semver.org/)。
 
-## [1.0.2] - 2026-09-13
+## [9.9.9] - 2026-09-13
 
 ### Changed
 
