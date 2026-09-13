@@ -39,11 +39,16 @@ request to change Mem/browser, requires this exact sequence:
    existing `xxx` or an existing `yyy`. Then ask for a new `xxx-yyy-mem` name: 1-8
    lowercase letters, then an integer 1-999 without a leading zero, then the mandatory
    `-mem` suffix. `name-info` validates the name format only; it does not prove uniqueness.
-6. Explain the derived port `1000 + yyy`. After both risk and location/name choices,
+6. Explain the derived port `9000 + yyy` (range 9001-9999). After both risk and location/name choices,
    run `webmind mem init --mem-path PATH --accept-risk --json`.
 7. Confirm the selected name/location and remind the user to remember them. Do not
    ask again during normal tasks. Switch Mem before or after a task, not in the middle
    of a consequential operation, unless the user stops the task and requests it.
+
+When an existing Mem has exact schema-1 metadata from the former port rule, tell the
+user to close its dedicated browser and re-run initialization with the same Mem path.
+The explicit `init --accept-risk` flow migrates that metadata to schema 2. Never hand-edit
+the metadata or migrate unknown or mismatched values.
 
 ## Storage invariants
 

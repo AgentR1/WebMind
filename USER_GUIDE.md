@@ -108,7 +108,7 @@ Mem must remain outside source, plugin, and Skill directories. Its parent must e
 
 Names have the form `xxx-yyy-mem`: `xxx` is 1–8 lowercase ASCII letters; `yyy` is 1–999 without a leading zero; `-mem` is required. Every new Mem on one computer must use both an `xxx` and a `yyy` that are individually unique.
 
-For example, `work-42-mem` uses `work-42-mem-Profile` and port 1042 (`1000 + 42`). Syntax validation cannot prove computer-wide uniqueness. Remember the Mem name and location; if an update loses the pointer, reselect the original Mem.
+For example, `work-42-mem` uses `work-42-mem-Profile` and port 9042 (`9000 + 42`). All derived ports are in the range 9001-9999. Syntax validation cannot prove computer-wide uniqueness. Remember the Mem name and location; if an update loses the pointer, reselect the original Mem.
 
 ### 3.2 Manual initialization
 
@@ -232,6 +232,8 @@ After an unintended send, deletion, upload, purchase, or other major result, sto
 ### 5.3 Updates, removal, and backup
 
 Before updating, finish active tasks and record the Mem name and absolute path. Update the complete distribution, reinstall dependencies, then run `doctor --json` and `mem init-status --json`. If the pointer is lost, reselect the original Mem. Never mix individual components from different versions.
+
+When upgrading from a release that used the old port rule, close the dedicated agent browser first. Reselect the same Mem through initialization and explicitly accept the initialization risk. WebMind migrates only metadata that exactly matches the legacy rule, upgrading it to schema 2 and the new `9000 + yyy` port. It does not delete the browser profile or rewrite unknown or inconsistent metadata.
 
 For a temporary local plugin, stop using `--plugin-dir`. Remove a marketplace installation through Claude Code plugin management. Remove the runtime `.venv` only after confirming it is no longer needed. None of these actions deletes external Mem or signs out websites automatically.
 
