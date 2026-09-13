@@ -500,29 +500,16 @@ def select_tab_from_tabs(args: argparse.Namespace, tabs: List[Dict[str, Any]]) -
     page_tabs = [tab for tab in tabs if tab.get("type") == "page" and tab.get("webSocketDebuggerUrl")]
     candidates = page_tabs or [tab for tab in tabs if tab.get("webSocketDebuggerUrl")]
 
-    if args.target_id:
-        for tab in candidates:
-            if tab.get("id") == args.target_id:
-                return tab
-        raise RuntimeError(f"no CDP tab found with id: {args.target_id}")
-
-    if args.url_contains:
-        needle = args.url_contains.lower()
-        for tab in candidates:
-            if needle in str(tab.get("url", "")).lower():
-                return tab
-        raise RuntimeError(f"no CDP tab URL contains: {args.url_contains}")
-
-    if args.title_contains:
-        needle = args.title_contains.lower()
-        for tab in candidates:
-            if needle in str(tab.get("title", "")).lower():
-                return tab
-        raise RuntimeError(f"no CDP tab title contains: {args.title_contains}")
-
-    if not candidates:
-        raise RuntimeError("no page targets with webSocketDebuggerUrl are available")
-    return candidates[0]
+    target_id = getattr(args, "target_id", None)
+    if not target_id:
+        raise RuntimeError(
+            "--target-id is required for commands that operate on an existing tab; "
+            "run tabs --json first and use the exact target id"
+        )
+    for tab in candidates:
+        if tab.get("id") == target_id:
+            return tab
+    raise RuntimeError(f"no CDP tab found with id: {target_id}")
 
 
 def select_tab(args: argparse.Namespace) -> Dict[str, Any]:
@@ -1416,9 +1403,11 @@ def summarize_tab(tab: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def add_target_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--target-id", help="CDP target id from the tabs command")
-    parser.add_argument("--url-contains", help="select first tab whose URL contains this text")
-    parser.add_argument("--title-contains", help="select first tab whose title contains this text")
+    parser.add_argument(
+        "--target-id",
+        required=True,
+        help="required exact CDP target id from the tabs command",
+    )
     parser.add_argument("--cdp-timeout", type=float, default=10.0, help="CDP command timeout in seconds")
     parser.add_argument("--accept-js-dialogs", action="store_true", help="accept JavaScript dialogs observed after the command")
     parser.add_argument("--dialog-drain", type=float, default=0.5, help="seconds to look for JavaScript dialogs after a command")
