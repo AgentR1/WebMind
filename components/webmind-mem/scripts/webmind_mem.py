@@ -455,7 +455,7 @@ def initialization_status() -> Dict[str, Any]:
         "name_rule": "xxx-yyy-mem; xxx=1-8 lowercase English letters; yyy=1-999 without leading zero; both xxx and yyy must each be unique on this Mac; port=1000+yyy",
         "uniqueness_notice": "When creating a new Mem, do not reuse either xxx or yyy from another WebMind Mem on this Mac.",
         "tutorial_first": True,
-        "tutorial_files": ["User Guide.md", "Safety Instructions.md", "使用教程.md", "安全说明.md"],
+        "tutorial_files": ["User Guide.md", "Safety Instructions.md", "使用教程.md", "安全须知.md"],
         "risk_acceptance_required": True,
         "risk_warning": "WebMind still has security and operational risks; continuing means the user accepts those risks.",
     }

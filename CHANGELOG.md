@@ -16,7 +16,7 @@ All notable changes to this project are documented in this file.
 
 - Removed bundled regression tests, generated validation results and delivery reports.
 
-## [2.0.2] - 2026-09-13
+## [9.9.9] - 2026-09-13
 
 ### Added
 

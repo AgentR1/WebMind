@@ -5,7 +5,7 @@ description: Operate the user's local browser and desktop from Codex on native m
 
 # WebMind for Codex - macOS
 
-Read the bundled [User Guide](User%20Guide.md) and [Safety Instructions](Safety%20Instructions.md). Chinese versions are also bundled as [使用教程](使用教程.md) and [安全说明](安全说明.md).
+Read the bundled [User Guide](User%20Guide.md) and [Safety Instructions](Safety%20Instructions.md). Chinese versions are also bundled as [使用教程](使用教程.md) and [安全须知](安全须知.md).
 Resolve the absolute directory containing this SKILL.md; do not assume the shell cwd
 or a host-provided plugin-root variable. Reassign the launcher path in a fresh shell.
 

@@ -4,7 +4,7 @@ Read these Safety Instructions carefully before using the WebMind macOS / Codex 
 
 The WebMind macOS / Codex Skill can assist with real operations through a browser, desktop UI, mouse, keyboard, and CDP remote debugging. Because these operations can directly affect local files, account state, website data, and real-world business outcomes, the included safety restrictions cannot completely eliminate the risk of mistakes, malicious pages, software vulnerabilities, or other unforeseen events.
 
-Chinese version: [安全说明](%E5%AE%89%E5%85%A8%E8%AF%B4%E6%98%8E.md).
+Chinese version: [安全须知](%E5%AE%89%E5%85%A8%E9%A1%BB%E7%9F%A5.md).
 
 ## 1. Safety restrictions already included in the Skill
 

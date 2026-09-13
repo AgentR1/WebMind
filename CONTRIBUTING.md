@@ -1,6 +1,6 @@
 # Contributing
 
-感谢你改进 WebMind for Codex。提交变更前，请先阅读 `SKILL.md`、`安全说明.md` 和与改动有关的组件 `GUIDE.md`。
+感谢你改进 WebMind for Codex。提交变更前，请先阅读 `SKILL.md`、`安全须知.md` 和与改动有关的组件 `GUIDE.md`。
 
 ## 开发原则
 
