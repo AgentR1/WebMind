@@ -96,3 +96,8 @@ See the [Safety Instructions](Safety%20Instructions.md) for detailed safety boun
 参与开发前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing.
+
+## 项目成员
+
+- 开发者（Developer）：Zhengdao Li
+- 指导者（Supervisor）：Mingyue Cheng
