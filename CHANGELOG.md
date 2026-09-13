@@ -11,6 +11,7 @@ All notable changes to this project are documented in this file.
 - Replaced internal delivery provenance metadata with public project documentation.
 - Added English User Guide and Safety Instructions while retaining the Chinese editions.
 - Made first-use initialization explicitly state that both `xxx` and `yyy` must each be unique for every new Mem on the same Mac.
+- Moved Mem-derived CDP ports to `9000 + yyy` (9001-9999) and added explicit initialization migration for exact legacy schema-1 profile metadata.
 
 ### Removed
 
