@@ -15,6 +15,6 @@
 2. 不要提交 Mem、浏览器 Profile、Cookie、截图、令牌、账号信息或本机配置。
 3. 保持文本为 UTF-8（无 BOM）和 LF；Python 代码使用四个空格缩进。
 4. 本地运行 `claude plugin validate .`、`python -m compileall -q scripts skills` 和 `python scripts/webmind.py doctor --json`。
-5. 涉及外部状态变更、安全边界或安装流程时，同步更新教程与安全说明。
+5. 涉及外部状态变更、安全边界或安装流程时，同步更新教程与安全须知。
 
 提交贡献即表示你同意按本项目的 MIT License 发布该贡献。

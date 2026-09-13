@@ -17,4 +17,4 @@
 
 如果仓库尚未启用 GitHub Private Vulnerability Reporting，请只创建一条不含漏洞细节的普通 Issue，请求维护者提供私密联系方式。
 
-项目的运行风险、数据边界和安全使用方式见[安全说明](安全说明.md)；英文版见 [Safety Instructions](SAFETY_INSTRUCTIONS.md)。
+项目的运行风险、数据边界和安全使用方式见[安全须知](安全须知.md)；英文版见 [Safety Instructions](SAFETY_INSTRUCTIONS.md)。

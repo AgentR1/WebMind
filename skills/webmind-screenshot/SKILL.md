@@ -5,7 +5,7 @@ description: Use webmind-screenshot for authorized local Windows Claude Code bro
 
 # webmind-screenshot - Windows / Claude Code
 
-Read the [User Guide](../../USER_GUIDE.md) and [Safety Instructions](../../SAFETY_INSTRUCTIONS.md). Chinese versions are also bundled as [使用教程](../../使用教程.md) and [安全说明](../../安全说明.md).
+Read the [User Guide](../../USER_GUIDE.md) and [Safety Instructions](../../SAFETY_INSTRUCTIONS.md). Chinese versions are also bundled as [使用教程](../../使用教程.md) and [安全须知](../../安全须知.md).
 
 ## Resolve the local launcher
 

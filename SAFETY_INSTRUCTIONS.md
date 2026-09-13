@@ -1,6 +1,6 @@
 # WebMind Windows / Claude Code Safety Instructions
 
-Chinese version: [安全说明](安全说明.md)
+Chinese version: [安全须知](安全须知.md)
 
 Read these Safety Instructions carefully before using the WebMind Windows / Claude Code Skill.
 

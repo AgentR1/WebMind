@@ -472,7 +472,7 @@ def initialization_status() -> Dict[str, Any]:
         "name_rule": "xxx-yyy-mem; xxx=1-8 lowercase English letters; yyy=1-999 without leading zero; port=1000+yyy",
         "uniqueness_rule": "For a new Mem, both xxx and yyy must each be unique among WebMind Mem names used on this computer; do not reuse either existing value. name-info checks format only, not uniqueness.",
         "tutorial_first": True,
-        "tutorial_files": ["USER_GUIDE.md", "SAFETY_INSTRUCTIONS.md", "使用教程.md", "安全说明.md"],
+        "tutorial_files": ["USER_GUIDE.md", "SAFETY_INSTRUCTIONS.md", "使用教程.md", "安全须知.md"],
         "risk_acceptance_required": True,
         "risk_warning": "WebMind still has security and operational risks; continuing means the user accepts those risks.",
     }

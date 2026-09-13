@@ -1,34 +1,56 @@
-# WebMind Windows / Claude Code User Guide
+# WebMind for Claude Code on Windows — User Guide
 
-Chinese version: [使用教程](使用教程.md)
+[中文版](使用教程.md)
 
-This guide applies only to **Claude Code on Windows**. After cloning the repository or downloading a GitHub Release, the code, launchers, dependency declarations, and documentation in this project can be used independently.
+This guide covers **WebMind for Claude Code on Windows**. It starts with the simplest installation and first-use path, then provides commands for diagnosis and troubleshooting.
 
-Before first use, read the [Safety Instructions](SAFETY_INSTRUCTIONS.md) in the same directory. This project can change web pages, account state, and desktop state; its safety constraints cannot guarantee that the model will never make a mistake. Installing dependencies, granting system permissions, and accepting the first-run initialization risk are separate actions and do not replace one another.
+WebMind can change websites, accounts, and the local desktop. Read the [Safety Instructions](SAFETY_INSTRUCTIONS.md) in full before starting. Installing software, granting system access, accepting first-use risk, and authorizing a particular action are separate decisions.
 
-## 1. What the project can do
+## 1. Quick start
 
-The project provides six capabilities: CDP browser control, desktop screenshots, mouse control, keyboard control, bounded waiting, and external Mem storage. The recommended execution order is: read relevant Mem -> prefer CDP/DOM -> use desktop tools only when necessary -> verify the result -> reconcile reusable knowledge.
+For a first installation:
 
-Locating web buttons, entering text, and reading page content usually do not require a screenshot first: CDP can inspect the DOM, locate elements by selector, and dispatch browser input events. File pickers, system dialogs, browser permission bubbles, and other native UI are outside the page DOM and require desktop tools. Desktop coordinate operations must be based on a current screenshot, not historical coordinates alone.
+1. Read the Safety Instructions.
+2. Prepare Claude Code, Python 3.10 or newer, and Chrome, Chromium, or Edge.
+3. Install the complete WebMind skill; do not copy only one component.
+4. Choose an external Mem and explicitly accept the residual risk.
+5. Run diagnostics, then launch and verify the dedicated browser profile.
+6. Begin with a low-risk, read-only task on a public page.
 
-This package does not include a browser binary, signed-in profiles, user Mem data, a Python virtual environment, or account credentials. It is also not a remote-control service: Claude Code, native Python, and the target browser must run on the same Windows machine with a visible desktop session.
+## 2. What WebMind does
 
-## 2. Installation and loading
+WebMind gives Claude Code six local capabilities:
 
-### 2.1 Prepare the environment
+- **CDP and DOM browser control** for reading pages, locating elements, entering text, and managing tabs.
+- **Screenshots** for interfaces that the DOM cannot describe.
+- **Mouse control** for native dialogs and visual-only surfaces.
+- **Keyboard control** for a window whose focus has been verified.
+- **Bounded waits** for state changes without waiting forever.
+- **External Mem** for verified reusable guidance and the dedicated browser profile.
 
-Prepare local Claude Code, Python 3.10 or newer, and an installed Chrome / Chromium / Edge browser. Internet access is required the first time Python dependencies are installed. Clone the whole repository or fully extract the Release; do not copy only one component, and do not move a virtual environment between machines.
+Web tasks should normally use CDP and the DOM. They are more reliable than guessing coordinates from screenshots. Desktop tools are fallbacks for native file pickers, system dialogs, browser permission prompts, and other surfaces outside the page DOM.
 
-You can also send the following instruction to Claude Code on the target machine and provide the real absolute project-root path:
+WebMind does not include a browser, credentials, an active Mem, a signed-in profile, or a Python virtual environment. It is not a remote-control service: Claude Code, Python, and the browser must run on the same Windows computer in a visible desktop session.
+
+## 3. Requirements
+
+You need Windows 10 or 11, Claude Code, native Windows Python 3.10+, Chrome/Chromium/Edge, and network access when Python dependencies are first installed.
+
+Do not operate the Windows desktop from WSL. Extract the complete archive and keep all components together. Do not copy a virtual environment between computers.
+
+## 4. Install WebMind
+
+### 4.1 Ask Claude Code to help
+
+Give local Claude Code the real absolute plugin-root path:
 
 ```text
-Please inspect and install the WebMind project in this directory. Read the User Guide and Safety Instructions first, verify the local environment, and then follow the appropriate installation steps. Ask for my approval before installing software, changing configuration, or requesting additional permissions. Do not automatically disable sandboxing or change system security policies.
+Please check WebMind at "D:\Tools\windows-claudecode". Read its user guide and safety instructions first, then install its dependencies. Explain and ask before changing configuration or requesting additional access.
 ```
 
-### 2.2 Manual installation
+### 4.2 Install from local source
 
-This plugin depends on the complete project root and cannot be installed by copying only one folder under `skills/`. Install the Python dependencies from native PowerShell:
+Keep the complete directory containing `.claude-plugin`, `scripts`, and `skills`:
 
 ```powershell
 $WebMindRoot = 'D:\Tools\windows-claudecode'
@@ -37,56 +59,48 @@ $WebMindRoot = 'D:\Tools\windows-claudecode'
 claude --plugin-dir "$WebMindRoot"
 ```
 
-Replace the path with the actual project location. `install.ps1` automatically uses Windows `py -3` or `python`, verifies Python 3.10+, creates `%LOCALAPPDATA%\WebMind\.venv`, and installs dependencies. It does not automatically register the plugin. The final command loads the complete directory through Claude Code's local plugin entry point.[1]
+The default Python environment is `%LOCALAPPDATA%\WebMind\.venv`. `--plugin-dir` loads the plugin for the current Claude Code session only; dependency installation does not register the plugin.
 
-If system policy blocks PowerShell scripts, you can install dependencies and run diagnostics with native Python in the same terminal without changing the execution policy:
+If PowerShell blocks the scripts, do not weaken the execution policy. Use native Python to create the virtual environment, install `requirements.txt`, and run `scripts/webmind.py doctor --json`.
 
-```powershell
-$DataRoot = Join-Path $env:LOCALAPPDATA 'WebMind'
-New-Item -ItemType Directory -Path $DataRoot -Force | Out-Null
-python --version
-python -m venv (Join-Path $DataRoot '.venv')
-& "$DataRoot\.venv\Scripts\python.exe" -m pip install -r "$WebMindRoot\requirements.txt"
-& "$DataRoot\.venv\Scripts\python.exe" "$WebMindRoot\scripts\webmind.py" doctor --json
-```
-
-Confirm that each step succeeds before continuing. If the system has only the `py` launcher, replace `python` above with `py -3`. Continue to use `claude --plugin-dir "$WebMindRoot"` to load the plugin; do not change host configuration without authorization.
-
-### 2.3 Unified command entry point for later examples
-
-The initialization, diagnostic, and browser examples below use `webmind` as a temporary function in the current terminal. Set the real path and define it first; define it again in a new terminal session. It is not a global command installed by the setup script. This function invokes the virtual environment's Python directly, so it also works when unsigned `.ps1` files are blocked:
+### 4.3 Define the `webmind` shorthand
 
 ```powershell
-$WebMindRoot = "D:\Tools\windows-claudecode"
+$WebMindRoot = 'D:\Tools\windows-claudecode'
 $WebMindData = if ($env:WEBMIND_DATA_DIR) { $env:WEBMIND_DATA_DIR } else { Join-Path $env:LOCALAPPDATA 'WebMind' }
 $WebMindPython = Join-Path $WebMindData '.venv\Scripts\python.exe'
 function webmind { & $WebMindPython "$WebMindRoot\scripts\webmind.py" @args }
 ```
 
-The Agent should resolve the project root from the actual discovered Skill or plugin path and invoke the full launcher path under that root instead of assuming that this temporary function already exists.
+This function lasts only for the current PowerShell session.
 
-### 2.4 Optional marketplace installation
+### 4.4 Optional persistent marketplace installation
 
-The project includes a marketplace that points only to itself. After publishing to GitHub, register and install it using `owner/repository`:
+After the repository is published:
 
 ```text
-claude plugin marketplace add <GitHub-username>/<repository>
+claude plugin marketplace add <GitHub-owner>/<repository>
 claude plugin install webmind-claudecode@webmind-claudecode
 ```
 
-For local validation before publishing, the first command can use the absolute project-root path instead of a GitHub repository; quote paths containing spaces. Do not enable the same plugin from multiple sources at the same time. Marketplace installation uses a cached copy, so after loading the plugin, resolve the root from the actual Skill path rather than assuming the source checkout is the runtime location.[2]
+A local plugin root may also be used as the marketplace source. Do not enable the same plugin from multiple sources. Marketplace installation uses a cached copy, so resolve the runtime root from the actual discovered skill. `WEBMIND_DATA_DIR` changes Python runtime storage, not Mem selection.
 
-This edition still uses `WEBMIND_DATA_DIR` to customize the Python runtime-data directory; ensure the same setting is used in future runs. It does not select the active Mem. On first use, the Agent initializes according to `skills/webmind-mem/SKILL.md` in the active plugin. You can explicitly invoke `/webmind-claudecode:webmind-mem`.
+## 5. Initialize an external Mem
 
-## 3. First initialization: select an external Mem
+Mem is a user-selected external folder containing reusable Markdown guidance and WebMind's dedicated browser profile. Because the profile may retain sign-in state, keep Mem outside every source, skill, and plugin directory, and do not share it as a whole.
 
-Installation does not mean initialization is complete. Before the first real browser or desktop task, the Agent checks status, recommends this guide and the Safety Instructions, explains that residual risk remains, and asks whether you accept that risk and want to continue. **The Agent must not use `--accept-risk` until you explicitly agree.**
+Initialization requires four user decisions: read the safety material, explicitly accept residual risk, choose an external parent directory, and select an existing Mem or a new name. Never pass `--accept-risk` before the user has made those choices.
 
-Choose a parent directory outside every Skill, plugin, and source folder. Downloads, Desktop, Documents, or a dedicated user-data directory are acceptable choices; do not place the active Mem inside this distribution. After you select the parent, only its direct children are scanned. WebMind does not recursively search an entire drive. If valid existing Mem folders are found, you choose whether to reuse one.
+A new name must use the form `xxx-yyy-mem`:
 
-A new Mem name must use the form `xxx-yyy-mem`: `xxx` is 1-8 lowercase English letters, `yyy` is an integer from 1 to 999 with no leading zero, and the `-mem` suffix is mandatory. **When initializing a new Mem, the Agent must explicitly tell you that both `xxx` and `yyy` must each be unique: do not reuse an `xxx` or a `yyy` already used by another WebMind Mem on this computer.** `name-info` validates the name format only; it does not prove uniqueness. For example, `work-42-mem` uses port **1042**, because the port is always `1000 + yyy`.
+- `xxx` is 1–8 lowercase ASCII letters.
+- `yyy` is an integer from 1 to 999 with no leading zero.
+- The `-mem` suffix is required.
+- On one computer, every Mem must use a unique `xxx` and a unique `yyy`.
 
-After accepting the risk and choosing the parent and name, you can initialize manually:
+For example, `work-42-mem` uses port 1042 because the port is `1000 + yyy`. `name-info` validates syntax, not computer-wide uniqueness. Scanning examines only direct children of the parent selected by the user.
+
+After making the choices:
 
 ```powershell
 $MemParent = 'D:\WebMindData'
@@ -96,7 +110,7 @@ webmind mem name-info --name work-42-mem --json
 webmind mem init --mem-path (Join-Path $MemParent 'work-42-mem') --accept-risk --json
 ```
 
-The external directory structure is:
+The resulting structure is:
 
 ```text
 work-42-mem/
@@ -104,8 +118,8 @@ work-42-mem/
   content.md
   work-42-mem-Profile/
     webmind-profile.json
-    ...browser-owned data...
-  some-task/
+    ...browser data...
+  task-name/
     memory.md
     flow.md
     ui.md
@@ -113,17 +127,9 @@ work-42-mem/
     notes.md
 ```
 
-For a new Mem, `global.md` is copied from the bundled `basic-rules.md`; when attaching an existing Mem, its existing `global.md` is preserved. The browser directory is exactly `<Mem-name>-Profile` directly inside the corresponding Mem. `webmind-profile.json` inside that Profile records the absolute path, loopback address, and port. CDP must read and verify it before launching or connecting.
+The skill stores only `skills/webmind-mem/mem-location.json`, a pointer to the selected Mem. Browser-profile files are never searched as memory. Remember the Mem name and location. If an update removes the pointer, select the original Mem again instead of creating a replacement. Switch Mem only before or after a task.
 
-The Skill stores only the selected Mem location pointer at `skills/webmind-mem/mem-location.json`; it does not store the active Mem itself or the browser session in the plugin source. Browser Profile contents are excluded from Mem indexing, searching, and summarization.
-
-Remember the Mem name and location. Normal later tasks should not ask again. If the location pointer is missing after updating or reloading the plugin, select the existing Mem again instead of creating a replacement and assuming the old knowledge was lost. To change the Mem or dedicated browser, re-enter initialization before or after a task; do not temporarily bypass configuration with `--endpoint` or `--user-data-dir`.
-
-**On the same computer, do not reuse any existing `xxx` or `yyy` when creating another Mem.** In particular, two different Mem names that reuse the same `yyy` still occupy the same port. The program will not close another browser to resolve a conflict.
-
-## 4. Environment and browser checks
-
-Run these commands in order:
+## 6. Check the environment and browser
 
 ```text
 webmind doctor --json
@@ -132,7 +138,9 @@ webmind mem check --json
 webmind cdp self-check --json
 ```
 
-If the browser is not running yet, a failed `cdp self-check` does not necessarily mean the installation is broken; that command only checks and does not launch the browser. After initialization, you can launch explicitly:
+`doctor` checks runtime readiness, but `runtime_ready` does not imply `gui_permissions_ready`. If the browser is stopped, `cdp self-check` may fail because this command never launches it.
+
+After initialization, perform a low-risk connection test:
 
 ```text
 webmind cdp launch --url https://example.com --json
@@ -140,136 +148,95 @@ webmind cdp tabs --json
 webmind cdp self-check --json
 ```
 
-Before every command that may open a browser, the Agent should state, "This will open the CDP (Agent-dedicated) Chrome browser," and then continue. This notice is not an additional confirmation request. If the actual browser is Edge or another supported browser, use its real name.
+Before a command that may launch a browser, the agent should identify the actual browser as the dedicated CDP/agent browser, then continue within the existing authorization. Check `profile_verified`, the actual profile path, and tab details. A reachable port or correct title alone does not prove profile ownership.
 
-Pay particular attention to `profile_verified`, the actual Profile, and the target tab. A reachable port, the expected page title, or a successful process launch alone does not prove that the correct browser is connected. Initialization state, dependencies, system permissions, and browser availability must be checked separately.
+Desktop tools require the signed-in user's interactive Windows desktop. Claude Code must be able to reach that desktop. Keep normal tool approval enabled and approve only task-specific commands; loading the plugin does not authorize sending, deletion, or publishing. Multi-monitor layouts may use negative coordinates, so every desktop click must be based on a current screenshot.
 
-### Windows environment notes
+## 7. Choose an operating mode
 
-Use native Windows Python and a host that can access the currently logged-in user's desktop. Do not operate the Windows desktop from a WSL Python process. Window focus and desktop-session state must be correct; "the command ran" does not mean the browser received the click or keystroke.
+### 7.1 Dedicated CDP browser — recommended
 
-This edition launches the dedicated Profile through the Windows browser executable path and waits up to 10 seconds by default for CDP readiness. CDP still verifies the Profile actually used by the browser. Screenshots report the current virtual-desktop origin, size, and scaling information; negative monitor coordinates are valid.
-
-Claude Code must actually connect to the currently logged-in user's desktop. Prefer normal permission prompts and inspect the specific operation being requested. Do not enable a blanket bypass of permission checks merely to reduce prompts. This plugin is not a system permission manager.[3]
-
-Do not lower PowerShell execution policy just to run the scripts. If `.ps1` is blocked, use the native-Python path described above, or first understand and handle the trust state of downloaded scripts using normal system procedures.
-
-## 5. Tabs and web-page operations
-
-When the browser has multiple pages, run `tabs` first to obtain real target IDs and pass `--target-id` to later operations. Replace `TARGET` in the examples with the actual ID.
+This mode uses an installed browser executable with an independent profile inside Mem. It never attaches the everyday default profile to CDP.
 
 ```text
+Use the webmind-claudecode skills and the dedicated CDP browser for this task. Read relevant Mem first. Do not send, delete, upload, or publish unless I explicitly authorize it. Task: ...
+```
+
+The user must personally handle passwords, verification codes, MFA, CAPTCHA, account recovery, and payment authentication.
+
+### 7.2 An already-open everyday browser
+
+This mode does not attach the everyday profile to CDP. It relies mainly on screenshots, mouse, and keyboard, and is more sensitive to focus, layout, and display scaling.
+
+```text
+Use the webmind-claudecode skills, but do not use CDP for this task. Operate my already-open everyday browser. Before every desktop click, verify the latest screenshot, target window, and pointer position. Task: ...
+```
+
+## 8. Common browser commands
+
+List tabs first, then use the exact ID for every command that operates on an existing tab:
+
+```text
+webmind cdp tabs --json
 webmind cdp --no-auto-launch new-tab --url https://example.com --json
 webmind cdp --no-auto-launch switch-tab --target-id TARGET --json
-webmind cdp --no-auto-launch close-tab --target-id TARGET --json
 webmind cdp --no-auto-launch eval --target-id TARGET --expression "document.title" --json
 webmind cdp --no-auto-launch wait-for-selector --target-id TARGET --selector "main" --visible --timeout 10 --json
+webmind cdp --no-auto-launch close-tab --target-id TARGET --json
 ```
 
-`new-tab` creates a tab; `switch-tab` activates an existing tab and requests that it be brought forward without creating or closing anything; `close-tab` closes only the specified tab and refuses to close the last page tab to avoid shutting down the whole browser. The operating system can still restrict focus stealing, so verify actual window focus before global keyboard input.
+Never choose a tab by title, URL, or list order. A timeout does not prove that an action did not happen. After a consequential action times out, inspect state without mutation before considering a retry.
 
-`--no-auto-launch` is appropriate for reusing an already connected and verified browser. If the connection is lost, it fails instead of silently opening a new window. Before sending, deleting, publishing, uploading, or performing another externally consequential action, verify the user-authorized target and content. Do not treat a timeout as proof that an action did not occur and resubmit blindly.
+For non-sensitive Unicode or multiline text, prefer CDP `fill` or `insert-text`. The Claude Code edition supports component stdin flags such as `--text-stdin` and `--url-stdin`; it **does not support `--input-file`**. Do not copy that option from the Codex edition. Native Python may read a non-sensitive UTF-8 file and pass its bytes to a verified command through stdin. Desktop `typing type` is intended for printable ASCII. Never place passwords, codes, tokens, or payment details in arguments, files, logs, or the clipboard.
 
-### Non-sensitive Unicode and complex text
+## 9. Describe and run tasks safely
 
-Prefer CDP `fill` / `insert-text`; desktop `typing type` supports printable ASCII only and does not drive a Chinese IME. `fill` sets a field and dispatches input events, while `insert-text` uses the browser input interface. Complex sites still require verification of the actual result.
+Start with public page titles, public-article summaries, or test text in an empty editor. State the target site or window, allowed actions, stopping point, and actions that need another confirmation.
 
-The Claude Code edition keeps component input methods such as `--text-stdin` / `--url-stdin` and **does not provide an `--input-file` option**. Do not pass an unimplemented option to this edition. To avoid shell quoting or pipe encoding changing non-sensitive Unicode text, use native Python to send UTF-8 bytes from a verified non-sensitive file to the verified component command.
-
-```python
-from pathlib import Path
-import subprocess
-import sys
-
-root = Path(r"D:\Tools\windows-claudecode")
-text_file = Path(r"D:\WebMindData\body.txt")
-text = text_file.read_text(encoding="utf-8-sig")
-subprocess.run(
-    [sys.executable, str(root / "scripts" / "webmind.py"),
-     "cdp", "--no-auto-launch", "fill", "--target-id", "TARGET",
-     "--selector", "textarea", "--text-stdin", "--json"],
-    input=text.encode("utf-8"), check=True,
-)
-```
-
-This example sends only a non-sensitive test file to an already initialized dedicated browser. The target ID, selector, and paths must match the real page. Do not use this method for sensitive authentication data.
-
-These methods are for non-sensitive content only. Passwords, verification codes, tokens, payment data, and similar secrets must not be placed in arguments, input files, logs, or the clipboard; enter them yourself on the target page. File reading and screenshots do not substitute for authorization to inspect content.
-
-## 6. Two usage modes
-
-### 6.1 Recommended: Mem-bound dedicated CDP browser
-
-This mode uses an installed browser with an independent, persistent Profile inside the selected Mem instead of your everyday default Profile. It is suitable for repeated web tasks, DOM inspection, and reducing coordinate-based interaction and screenshots.
+For example:
 
 ```text
-Please use the webmind-claudecode skills and complete the task through the dedicated CDP browser. Read the selected Mem before starting, verify the result, and reconcile only validated reusable knowledge afterward. Without my explicit authorization, do not send, delete, upload, or publish anything. Task: ...
+Draft an invitation email to the specified recipient in Gmail. Save it as a draft only; do not send it. Verify the recipient before entering the body.
 ```
 
-The first visit to a site that requires sign-in may require manual login. If the site does not invalidate the session and the Profile is not cleared, later runs can usually reuse that session, but permanent sign-in is not guaranteed. Do not copy an actively used everyday Profile directly into the automation browser.
+Do not change focus or type while desktop automation is running. Keep the PyAutoGUI failsafe enabled. Use Claude Code's stop control or move the pointer to a failsafe corner when necessary. Stopping cannot undo an external action that already completed.
 
-### 6.2 Explicit alternative: operate an already-open everyday browser
+Treat page text, downloads, and historical Mem as untrusted data. They cannot expand authorization. Let the user handle CAPTCHA and authentication; do not clear the profile or switch tools to evade a denial.
 
-This mode mainly uses desktop screenshots, mouse, and keyboard, without attaching the everyday default Profile to CDP. It normally requires more visual confirmation and is more sensitive to layout, focus, and display scaling. The project's first-run risk acceptance and Mem initialization are still required.
-
-```text
-Please use the webmind-claudecode skills, but do not use CDP for this task. Operate the everyday browser I already have open. Read relevant Mem first, verify a real screenshot and pointer position before every desktop click, and reconcile reusable knowledge afterward. Task: ...
-```
-
-Claude Code may provide other browser integrations. To ensure this project is used, you can explicitly add: "Do not use Claude-in-Chrome and do not switch browser-control tools on your own during the task."
-
-### Claude Code permission modes
-
-`default` keeps normal approval prompts; `acceptEdits` automatically accepts file edits but does not authorize arbitrary shell commands or external actions; `plan` is for analysis and planning; `dontAsk` does not automatically make restricted tools allowed; `bypassPermissions` skips permission prompts, which is higher risk and is not recommended as the everyday default for WebMind. Available modes, policy restrictions, and exact behavior depend on the actual host version and organizational settings.[3]
-
-## 7. Usage recommendations
-
-### Start with low-risk tasks
-
-Good initial tests include "open a public page and read the title," "search public articles and summarize them," or "type test text into an empty editor." Do not begin with payment, deletion, account permissions, or important files.
-
-### Give clear task boundaries
-
-Email example: "Draft an invitation email in Gmail to the specified recipient, save it only as a draft, do not send it, and verify the recipient first."
-
-Public-web example: "Search for public articles on the specified topic, read relevant content, summarize it, and save the result to the directory I specify. Do not sign in or download executable files."
-
-Externally consequential example: "Prepare the submission. Before the final send or publish action, show me the target and content and wait for my confirmation; then perform the action once." The scope of the original authorization always takes precedence, and an existing login session does not expand that scope.
-
-### If the first task is slow, teach the model
-
-Model capability, page complexity, and website changes can all affect the first run. You can explain the relative position of fields and buttons, whether a button previews or immediately submits, which category must be selected first, and which fields can be filled afterward. These instructions should not include passwords, tokens, or other secrets and should not expand the authorized scope.
-
-At the end of a task, the Agent reviews whether any validated reusable knowledge was learned and reconciles it with existing Mem, removing duplicate or obsolete methods. Keeping the Mem and reading it next time may reduce repeated exploration, but does not guarantee every run will be faster. "Saved to memory" is true only after the write actually succeeds.
-
-### If a search engine rejects automated search
-
-A rejected search query does not mean that a known official site cannot be opened directly. You can take over manually and complete a verification step; you can also ask the model to use another search engine in the **same browser and same Profile**, or directly open a known official URL. Do not automatically solve CAPTCHA, clear login data, rebuild the Profile, or switch control tools to evade a denial.
-
-### Keep operations observable and interruptible
-
-Do not switch windows or type at the same time as desktop automation. Keep the PyAutoGUI failsafe enabled. To stop, prefer the host's stop control or move the pointer to a failsafe corner. This mechanism cannot undo external actions that already completed and does not guarantee interruption of every CDP request.
-
-## 8. Common problems
+## 10. Troubleshooting
 
 | Symptom | Check first |
 | --- | --- |
-| Reports that initialization is missing | Run `mem init-status`; follow the risk-acceptance and path-selection flow instead of editing the pointer manually. |
-| Profile or port mismatch | Check the current Mem name and `webmind-profile.json`; do not attach to another browser. |
-| Cannot connect after launch | Inspect the error, port conflict, Profile lock, and host approval; do not delete the Profile first. |
-| Screenshot works but clicks land incorrectly | Check the latest monitor layout, screenshot region, image scale, and actual pointer position. |
-| Text goes into the terminal | Stop, re-verify the target application and field focus, and do not blindly continue with Enter. |
-| Unicode text is corrupted | Check UTF-8 file/pipe handling and use the appropriate CDP text input path instead of ASCII keyboard typing. |
-| Old knowledge seems missing after an update | Locate the original external Mem and reinitialize by selecting it; do not create a replacement and then delete the old folder. |
+| Initialization is required | Run `mem init-status` and follow the risk and path-selection flow. Do not edit the pointer manually. |
+| `webmind` is not found | Define the temporary function from section 4.4 in the current shell. |
+| Profile or port mismatch | Check the selected Mem and `webmind-profile.json`; never take over another browser. |
+| Browser starts but CDP cannot connect | Check port conflicts, profile locks, and Claude Code approvals. Do not delete the profile first. |
+| Correct screenshot, wrong click | Recheck monitor layout, capture region, scaling, and current pointer coordinates. |
+| Text goes into the terminal | Stop immediately, verify focus again, and do not continue with Enter. |
+| Unicode text is corrupted | Use UTF-8 files and the CDP text path. |
+| Old guidance is missing after update | Re-select the original external Mem; do not delete it. |
 
-If an incorrect send, deletion, upload, or other major unintended result has already occurred, stop at a safe point, perform only necessary read-only checks, and report it. Do not automatically refresh, retry, undo, or clean up.
+After an unintended send, deletion, upload, or other major result, stop and perform only necessary read-only checks. Do not refresh, retry, undo, or clean up until the user decides what to do.
 
-## 9. Updates, uninstalling, and backups
+## 11. Updates, removal, and backup
 
-Before upgrading, finish the current task, back up source modifications, and remember the external Mem location. Removing the code does not sign out website sessions; you are responsible for managing the Profile that contains login state. Do not package and share an entire Mem as if it were only ordinary experience documentation, because it also contains browser data.
+Finish active tasks, back up source changes, and remember the external Mem location before updating. Removing the skill does not remove Mem or sign out browser sessions.
 
-Any knowledge you do share should be reviewed and sanitized first. Share only genuinely non-sensitive task Markdown; do not include the Profile, location pointer, cookies, cache, screenshots, or temporary input files.
+Do not archive or share an entire Mem because it contains a browser profile. Share only reviewed and sanitized Markdown, never cookies, location pointers, screenshots, logs, or temporary input files.
 
-## 10. References
+## 12. Glossary
 
-Official information about Claude Code plugins, marketplaces, and permission modes is listed in [Reference Sources](references/SOURCES.md). Real Windows desktops, browser versions, websites, and system permissions change over time; validate first use with a read-only task on a public page.
+| Term | Meaning |
+| --- | --- |
+| CDP | Chrome DevTools Protocol, the browser debugging and automation interface. |
+| DOM | The structured representation of a web page. |
+| Mem | The external directory for reusable guidance and dedicated browser data. |
+| Profile | An independent browser data directory that may retain sign-in state. |
+| `target-id` | The identifier assigned to a specific tab by CDP. |
+| Loopback address | A network address reachable only from the local computer. |
+
+## 13. Validation scope and references
+
+After installation, check `doctor --json`, `mem init-status --json`, `mem check --json`, and each component's `self-check --json`. Static checks cannot validate permissions, focus, scaling, or browser behavior on the actual Windows desktop.
+
+Use disposable or low-risk data for the first test. See [Reference sources](references/SOURCES.md) for project and host documentation.
