@@ -17,6 +17,15 @@ Assign `$WebMindRoot` to that path.
 Request permission before dependency installation or access beyond the allowed workspace.
 Never disable sandboxing or broaden permanent permissions to work around a denial.
 
+## Task browser mode
+
+Use invisible mode only when the user explicitly chooses it for the current task.
+If omitted, proceed in visible mode without an extra question. Do not inherit or store
+this choice as a Mem preference. See the [CDP guide](../webmind-cdp/GUIDE.md#task-browser-mode)
+for `--invisible-mode` on every CDP command, actual-mode verification and user takeover.
+Desktop screenshots, mouse and keyboard cannot operate an invisible browser page;
+pause for a user-authorized transition to visible mode when those tools are needed.
+
 ## Mandatory initialization
 
 Run `webmind mem init-status --json`. Missing or invalid initialization, or an explicit
@@ -39,11 +48,38 @@ request to change Mem/browser, requires this exact sequence:
 7. Confirm the selected name/location and remind the user to remember them. Do not
    ask again during normal tasks. Switch Mem before or after a task, not in the middle
    of a consequential operation, unless the user stops the task and requests it.
+8. After successful initialization (creation, attachment or reinitialization), actively
+   explain all three browser choices below in the user's language. Include this in the
+   completion response; a tutorial link alone is insufficient. Do not start a browser
+   merely to demonstrate the choices. A visible/invisible-mode change alone does not
+   require Mem reinitialization; follow the CDP guide's browser transition procedure.
 
 When an existing Mem has exact schema-1 metadata from the former port rule, tell the
 user to close its dedicated browser and re-run initialization with the same Mem path.
 The explicit `init --accept-risk` flow migrates that metadata to schema 2. Never hand-edit
 the metadata or migrate unknown or mismatched values.
+
+## 初始化完成后的必需告知 / Required post-initialization notice
+
+初始化成功后，除报告 Mem、Profile 和端口外，必须主动告诉用户以下三种使用方式：
+
+- **用户自己浏览器模式**：通过桌面截图、鼠标和键盘操作用户已打开的日常 Chrome，复用其当前会话；不把日常 Profile 接入 CDP。
+- **Agent 专用浏览器模式**：使用当前 Mem 绑定的独立 Profile 打开可见浏览器，通过 CDP/DOM 操作；需要登录时由用户在该浏览器中完成。
+- **不可见模式**：只能使用 Agent 专用浏览器及其独立 Profile，不显示窗口，通过 CDP/DOM 操作；不能用于用户自己的日常浏览器。需要人工登录或接管时，应暂停并按指南切换到可见模式。
+
+同时说明：用户可在每次任务前选择；未明确要求不可见模式时，默认不使用不可见模式，不等待额外确认。不可见模式选择仅对当前任务有效，不沿用上次选择，也不保存为 Mem 偏好。若用户选择自己的浏览器，就使用可见的日常浏览器；选择 Agent 专用浏览器且未要求不可见模式时，就使用可见的专用浏览器。
+
+After initialization succeeds, report the Mem, Profile and port, and actively explain:
+
+- **User's own browser mode**: use desktop screenshots, mouse and keyboard on the user's already-open everyday Chrome, reusing its current session without attaching its Profile to CDP.
+- **Dedicated Agent browser mode**: open a visible browser with the independent Profile bound to this Mem and operate through CDP/DOM; the user completes any required sign-in there.
+- **Invisible mode**: use only the dedicated Agent browser and its independent Profile, without a visible window, through CDP/DOM. It cannot be used with the user's everyday browser. Pause for the documented transition to visible mode when manual sign-in or takeover is needed.
+
+Explain that users may choose before each task. Without an explicit invisible request,
+default to no invisible mode and do not wait for another confirmation. An invisible
+choice is valid only for the current task; do not inherit it or store it as a Mem
+preference. Selecting the user's own browser means visible everyday Chrome; selecting
+the dedicated Agent browser without invisible mode means a visible dedicated browser.
 
 ## Storage invariants
 

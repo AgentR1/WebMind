@@ -26,6 +26,12 @@ python -B .\scripts\install.py --dry-run
 
 `doctor` 不会启动浏览器。真实浏览器或桌面验证只能使用非敏感页面、临时账号和外部测试 Mem；不得把生成的数据提交到仓库。
 
+不可见模式回归检查（不启动真实浏览器或访问用户 Profile）：
+
+```text
+python -B -m unittest discover -s tests -v
+```
+
 ## 报告问题
 
 普通缺陷和功能建议可以使用 GitHub Issue。安全漏洞请遵循 [SECURITY.md](SECURITY.md)，不要公开披露利用细节或真实用户数据。

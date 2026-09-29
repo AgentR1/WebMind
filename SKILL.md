@@ -32,6 +32,27 @@ the profile and loopback port `9000 + yyy` (range 9001-9999). Read this before l
 Do not ask for the Mem location again on normal later tasks; switching requires the
 initialization flow before or after a task. Never search/index browser profile contents.
 
+## Task browser mode
+
+Explain the three choices after every successful initialization, using the bilingual
+[required completion notice](components/webmind-mem/GUIDE.md#初始化完成后的必需告知--required-post-initialization-notice).
+Do not launch a browser just to demonstrate them.
+
+- **用户自己浏览器模式 / User's own browser mode**: operate the user's already-open
+  everyday browser through desktop screenshots, mouse and keyboard, without CDP.
+- **Agent 专用浏览器模式 / Dedicated Agent browser mode**: use a visible dedicated
+  browser with the independent Profile bound to the selected Mem, through CDP/DOM.
+- **不可见模式 / Invisible mode**: specifically run that dedicated Agent browser in
+  Chrome headless mode (`--headless`), never minimize a window, use an inactive tab or
+  run an unrelated background process. It cannot apply to the everyday browser.
+
+Enable invisible mode only on an explicit current-task request. Otherwise proceed
+visibly without another question; never inherit or save the choice as a Mem preference.
+Read the [CDP mode guide](components/webmind-cdp/GUIDE.md#task-browser-mode), repeat
+`--invisible-mode` on every CDP call and verify the actual mode with the Profile.
+A mismatch must not trigger an automatic restart. Desktop tools cannot operate the
+invisible page; pause for a user-authorized visible-mode transition for manual takeover.
+
 ## Task workflow
 
 1. Inspect initialization. If missing or invalid, follow the memory guide's first-use
@@ -40,11 +61,11 @@ initialization flow before or after a task. Never search/index browser profile c
 2. Read selected `global.md` and `content.md`, search for the concrete task, and read
    only relevant memory. Never inspect the browser profile as memory.
 3. Prefer CDP and DOM. Load the Mem-bound profile configuration before connection,
-   verify the browser's actual profile, inspect tabs, and specify the actual target ID.
+   verify the browser's actual profile and mode, inspect tabs, and specify the actual target ID.
    Every command that operates on an existing tab requires `--target-id`; never infer a
    tab from URL/title text or list order. Read current DOM state before selecting,
    clicking or filling an element.
-4. Use screenshot/mouse/keyboard only for native dialogs or visual-only surfaces.
+4. In visible mode, use screenshot/mouse/keyboard only for native dialogs or visual-only surfaces.
    View the actual returned PNG before deciding coordinates; printing a path is not
    visual inspection. Never use a sensitive screenshot as a way around a login gate.
 5. Verify the actual page/UI state after actions. Wait in bounded steps and never
