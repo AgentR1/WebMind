@@ -22,6 +22,12 @@ bash -n scripts/install.sh scripts/webmind.sh components/webmind-cdp/scripts/lau
 
 涉及真实浏览器或桌面的变更，只能在目标 macOS 设备上使用一次性测试 Profile 验证。不要用日常 Profile，也不要把验收产生的数据提交到仓库。
 
+不可见模式回归检查（不启动真实浏览器或访问用户 Profile）：
+
+```text
+python -B -m unittest discover -s tests -v
+```
+
 ## Pull Request
 
 PR 请说明变更目的、风险边界、验证方式和文档影响。安全漏洞不要提交公开 Issue 或公开 PR，请按 `SECURITY.md` 报告。

@@ -6,6 +6,12 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- 为 macOS Codex 版增加任务级不可见模式（`cdp --invisible-mode`）；未指定时默认使用可见模式，不持久化上次选择。
+- 核验浏览器实际模式，拒绝复用与当前任务模式不符的实例，并保留 Profile/端口校验。
+- 同步中英文教程、安全须知与 Skills，说明不可见模式的 CDP 操作范围和人工接管流程。
+- 初始化完成后必须主动介绍用户自己浏览器模式、Agent 专用浏览器模式及仅限专用浏览器的不可见模式；同步中英文初始化要求与教程。
+- 在 global 初始规则模板中以中英文定义三种使用模式，明确不可见模式专指以 Chrome headless 模式运行 Agent 专用浏览器。
+
 - Prepared the project for a public GitHub repository.
 - Reworked the README and installation guidance for repository-based distribution.
 - Replaced internal delivery provenance metadata with public project documentation.

@@ -8,3 +8,7 @@ Read [GUIDE.md](GUIDE.md) for commands and safety constraints.
 The complete standalone [User Guide](../../User%20Guide.md) and
 [Safety Instructions](../../Safety%20Instructions.md) are bundled in this edition.
 Implementation: `scripts/webmind_cdp.py`.
+
+Visible mode is the default for every task. Only an explicit current-task user choice
+enables invisible mode: `webmind cdp --invisible-mode launch --json`. Repeat the flag
+before every CDP subcommand in that task. See [GUIDE.md](GUIDE.md#task-browser-mode) for mode checks and manual takeover.
