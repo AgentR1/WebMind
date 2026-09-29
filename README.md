@@ -41,6 +41,16 @@ A local browser and desktop automation plugin for **Windows + Claude Code**. It 
 >
 > Please read the [Safety Instructions](SAFETY_INSTRUCTIONS.md) first, followed by the [User Guide](USER_GUIDE.md), which contains the detailed installation methods.
 
+## 每次任务的浏览器模式 / Browser Mode per Task
+
+用户可以在每次任务前明确选择“使用不可见模式”，让专用 CDP 浏览器不显示窗口。未说明时默认使用可见模式，不沿用上次选择。不可见模式通过 CDP 操作，不能用桌面鼠标键盘直接操作隐藏页面；需要人工登录或接管时应暂停并切换到可见模式。具体命令见[使用教程](使用教程.md#42-每次任务前选择是否使用不可见模式)。
+
+Users may explicitly choose invisible mode for each task to run the dedicated CDP
+browser without a visible window. Omission defaults to visible mode; previous choices
+are not carried forward. Invisible pages use CDP, not desktop mouse/keyboard input.
+Pause for a transition to visible mode when manual authentication or takeover is needed.
+See the [User Guide](USER_GUIDE.md#42-choose-invisible-mode-for-each-task).
+
 ## 数据边界 / Data Boundaries
 
 - Python 虚拟环境默认位于 `%LOCALAPPDATA%\WebMind\.venv`，可用 `WEBMIND_DATA_DIR` 改变位置。

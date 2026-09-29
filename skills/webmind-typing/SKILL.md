@@ -25,6 +25,15 @@ Before normal use, inspect `webmind mem init-status --json` and follow the
 [memory initialization guide](../webmind-mem/SKILL.md) if needed. Load relevant
 Mem at task start and reconcile it after verified completion.
 
+## Task browser mode
+
+Use invisible mode only when the user explicitly chooses it for the current task.
+If omitted, proceed in visible mode without an extra question. Do not inherit or store
+this choice as a Mem preference. See the [CDP guide](../webmind-cdp/SKILL.md#task-browser-mode)
+for `--invisible-mode` on every CDP command, actual-mode verification and user takeover.
+Desktop screenshots, mouse and keyboard cannot operate an invisible browser page;
+pause for a user-authorized transition to visible mode when those tools are needed.
+
 ## Preconditions
 
 Before every keyboard action, verify the intended application has OS focus, the intended

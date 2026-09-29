@@ -124,6 +124,23 @@ If the device, account, data, or business process cannot tolerate incorrect oper
 
 **Before using WebMind Windows / Claude Code Skill, evaluate whether the risk is acceptable based on the importance of the task, the data stored on the device, and the value of the account involved.**
 
+## Invisible mode boundaries
+
+Enable invisible mode only when the user explicitly chooses it for the current task.
+An omitted choice defaults to visible mode, independent of earlier tasks. Hiding the
+dedicated CDP browser window does not reduce permissions, isolate account data or remove
+the real effects of actions. The user cannot intervene through the desktop mouse or
+keyboard; pause when manual takeover is needed.
+
+Authentication screenshots, automated sensitive authentication and secret recording
+remain prohibited. Desktop screenshots, mouse and keyboard are not fallbacks for the
+hidden page. If sign-in, verification or a native dialog requires visible interaction,
+explain the transition and obtain authorization to close the dedicated browser. Confirm
+it has exited before reopening the same Profile in visible mode. Never share a Profile
+between simultaneous instances, restart automatically or terminate all Chrome processes.
+Switching may lose unsaved page state. A invisible process does not automatically exit
+at task end; any closure must target only the verified, authorized dedicated browser.
+
 ## 5. Permission, isolation, and data boundaries in this distribution
 
 These instructions apply only to the **Windows + Claude Code** `windows-claudecode` distribution.

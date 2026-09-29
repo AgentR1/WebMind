@@ -8,3 +8,7 @@ Read [SKILL.md](SKILL.md) for commands and safety constraints.
 The complete standalone [User Guide](../../USER_GUIDE.md) and
 [Safety Instructions](../../SAFETY_INSTRUCTIONS.md) are bundled in this edition. Chinese versions are available as [使用教程](../../使用教程.md) and [安全须知](../../安全须知.md).
 Implementation: `scripts/webmind_cdp.py`.
+
+Visible mode is the default for every task. Only an explicit current-task user choice
+enables invisible mode: `webmind cdp --invisible-mode launch --json`. Repeat the flag
+before every CDP subcommand in that task. See SKILL.md for mode checks and manual takeover.
