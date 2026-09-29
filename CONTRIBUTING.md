@@ -19,6 +19,12 @@ bash ./scripts/webmind.sh doctor --json
 - 涉及真实网页或桌面时，只使用无敏感数据的测试页面和专用 Profile。
 - 用户可见变更应更新 README、使用教程或 CHANGELOG。
 
+不可见模式回归检查（不启动真实浏览器或访问用户 Profile）：
+
+```text
+python -B -m unittest discover -s tests -v
+```
+
 ## 报告安全问题
 
 不要通过公开 Issue 披露可利用细节。请按照 [SECURITY.md](SECURITY.md) 的流程私下报告。

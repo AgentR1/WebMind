@@ -58,6 +58,16 @@ WebMind is a local Claude Code plugin for macOS that provides CDP/DOM browser co
 >
 > Please read the [Safety Instructions](Safety%20Instructions.md) first, followed by the [User Guide](User%20Guide.md), which contains the detailed installation methods.
 
+## 每次任务的浏览器模式 / Browser Mode per Task
+
+用户可以在每次任务前明确选择“使用不可见模式”，让专用 CDP 浏览器不显示窗口。未说明时默认使用可见模式，不沿用上次选择。不可见模式通过 CDP 操作，不能用桌面鼠标键盘直接操作隐藏页面；需要人工登录或接管时应暂停并切换到可见模式。具体命令见[使用教程](使用教程.md#42-每次任务前选择是否使用不可见模式)。
+
+Users may explicitly choose invisible mode for each task to run the dedicated CDP
+browser without a visible window. Omission defaults to visible mode; previous choices
+are not carried forward. Invisible pages use CDP, not desktop mouse/keyboard input.
+Pause for a transition to visible mode when manual authentication or takeover is needed.
+See the [User Guide](User%20Guide.md#42-choose-invisible-mode-for-each-task).
+
 ## 数据与隐私 / Data and Privacy
 
 仓库不应包含真实 Mem、浏览器 Profile、登录状态、账号凭据、截图或本机位置指针。运行时产生的 `skills/webmind-mem/mem-location.json`、虚拟环境和常见敏感配置文件已加入 `.gitignore`。公开发布前仍应检查 Git 暂存区，避免把本地生成内容加入提交。

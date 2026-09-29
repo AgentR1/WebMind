@@ -22,6 +22,8 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
+      - name: Check browser modes without a live browser
+        run: python -B -m unittest discover -s tests -v
       - name: Check Python syntax
         run: python -m compileall -q scripts skills
       - name: Check shell syntax

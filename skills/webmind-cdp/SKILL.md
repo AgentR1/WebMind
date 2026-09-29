@@ -25,6 +25,47 @@ Before normal use, inspect `webmind mem init-status --json` and follow the
 [memory initialization guide](../webmind-mem/SKILL.md) if needed. Load relevant
 Mem at task start and reconcile it after verified completion.
 
+## Task browser mode
+
+At the start of each task, use invisible mode only if the user explicitly selected it
+for this task. Otherwise use visible mode immediately; do not block on an unanswered
+mode question. Do not inherit a previous task's choice or save it as a Mem preference.
+Use the user-facing name "不可见模式" / "invisible mode".
+This specifically means Chrome headless mode (`--headless`) for the Mem-bound dedicated
+Agent browser, never minimizing/hiding a visible window, opening an inactive tab or
+running an unrelated background process. It does not apply to the user's everyday browser.
+
+For invisible mode, pass the global `--invisible-mode` flag before the subcommand
+on EVERY CDP call, including self-check, launch, tabs and later page actions. Omit it
+for visible mode. It is separate from `new-tab --background`, which only controls tab
+activation and does not select the browser mode. Include the selected mode in the
+opening notice. Profile/port selection and verification remain unchanged.
+
+```text
+webmind cdp --invisible-mode launch --url https://example.com --json
+webmind cdp --invisible-mode --no-auto-launch tabs --json
+webmind cdp --invisible-mode --no-auto-launch eval --target-id TARGET --expression "document.title" --json
+webmind cdp --invisible-mode self-check --json
+```
+
+Invisible mode starts Chrome without a visible window, using a 1280x800 window-size
+setting. CDP/DOM and non-sensitive CDP page screenshots remain available. Desktop
+screenshots, OS mouse and keyboard cannot operate that hidden page; do not fall back
+to them for it. Switching tabs does not display an invisible browser. `--new-window`
+cannot be combined with invisible mode.
+
+Every connection checks the actual mode along with the Profile. A mismatch fails
+without reuse, browser termination or automatic restart. Explain the mismatch; do not
+add/remove the flag just to fit an existing process against this task's selection.
+To switch modes or obtain manual authentication/native-dialog handling, first check
+unfinished work and obtain authorization to close the dedicated browser. Confirm it
+has exited before relaunching the same Profile in the chosen mode; never run two
+instances on the same Profile. Do not kill unrelated Chrome processes. Page state may
+be lost during restart. A running invisible process remains running after the CLI
+returns; ending a task does not automatically close it or carry its choice forward.
+If manual takeover is needed, pause and explain the visible-mode transition to the user.
+Authentication restrictions still apply to CDP screenshots and input.
+
 ## Browser configuration and ownership
 
 Read the stored Mem selection and then `<Mem-name>-Profile/webmind-profile.json`
@@ -71,6 +112,9 @@ webmind cdp --no-auto-launch switch-tab --target-id TARGET --json
 webmind cdp --no-auto-launch close-tab --target-id TARGET --json
 webmind cdp --no-auto-launch navigate --target-id TARGET --url https://example.com --wait-load --json
 ```
+
+The following examples use the default visible mode; add `--invisible-mode` before
+the subcommand throughout a task explicitly selected for invisible mode.
 
 `new-tab` creates a tab, normally activating it. `switch-tab` activates and requests
 foreground presentation of an existing tab; it does not create or close one. System
@@ -130,7 +174,8 @@ reason and warnings; an unmarked image does not establish the pointer location.
 
 Use dialog handling only for page JavaScript dialogs, and only within authorization.
 Native file pickers, OS dialogs, browser permission bubbles and extension popups are
-outside page DOM: use the screenshot/mouse/typing guides, then return to CDP. Never
+outside page DOM: in visible mode use the screenshot/mouse/typing guides, then return
+to CDP. In invisible mode pause for a mode transition if those tools are needed. Never
 screenshot or automate authentication to get past this limitation.
 
 ## Search restrictions
