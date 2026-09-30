@@ -2,6 +2,12 @@
 
 本项目遵循 [Semantic Versioning](https://semver.org/)。
 
+## [Unreleased]
+
+- Agent 专用 CDP 浏览器默认使用不可见模式；新增互斥参数 `--visible-mode`，保留 `--invisible-mode`。
+- 保留 Profile、端口核验和实际模式识别；已有浏览器模式不符时告知实际模式及 ESC 停止提示，然后继续复用，不自动重启。
+- 同步中英文指南和 Mem 初始规则，并扩展默认启动、可见启动、参数冲突及模式切换回归测试。
+
 ## 9.9.9 - 2026-09-13
 
 - 为 GitHub 公开发布清理测试、内部验证结果和源压缩包溯源信息。

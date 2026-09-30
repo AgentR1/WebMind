@@ -40,18 +40,24 @@ Do not launch a browser just to demonstrate them.
 
 - **用户自己浏览器模式 / User's own browser mode**: operate the user's already-open
   everyday browser through desktop screenshots, mouse and keyboard, without CDP.
-- **Agent 专用浏览器模式 / Dedicated Agent browser mode**: use a visible dedicated
-  browser with the independent Profile bound to the selected Mem, through CDP/DOM.
+- **Agent 专用浏览器模式 / Dedicated Agent browser mode**: use the independent Profile
+  bound to the selected Mem through CDP/DOM; default to invisible mode and use
+  `--visible-mode` when a visible dedicated browser is requested.
 - **不可见模式 / Invisible mode**: specifically run that dedicated Agent browser in
   Chrome headless mode (`--headless`), never minimize a window, use an inactive tab or
   run an unrelated background process. It cannot apply to the everyday browser.
 
-Enable invisible mode only on an explicit current-task request. Otherwise proceed
-visibly without another question; never inherit or save the choice as a Mem preference.
-Read the [CDP mode guide](components/webmind-cdp/GUIDE.md#task-browser-mode), repeat
-`--invisible-mode` on every CDP call and verify the actual mode with the Profile.
-A mismatch must not trigger an automatic restart. Desktop tools cannot operate the
-invisible page; pause for a user-authorized visible-mode transition for manual takeover.
+When launching a new dedicated Agent browser, default to invisible mode; use
+`--visible-mode` when requested. Never save the launch choice as a Mem preference.
+Before page actions, run `cdp tabs --json` through the installed launcher. If
+`browser_reused` is true, relay `browser_mode_notice` once before continuing, replacing
+XXX with the actual visible/invisible mode: "已有浏览器正在使用XXX模式，Agent将继续使用已有浏览器工作；如果想要切换，请按下ESC阻止Agent。"
+Continue with that existing browser without another confirmation, even if its mode
+differs from the launch request. Use the actual `browser_mode` for tool decisions.
+ESC means the host Agent stop control, not an Escape event sent to the webpage.
+Read the [CDP mode guide](components/webmind-cdp/GUIDE.md#task-browser-mode) for transitions.
+Profile/port verification stays mandatory. Never restart merely to match a mode flag.
+Desktop tools cannot operate invisible pages; pause for manual takeover when needed.
 
 ## Task workflow
 

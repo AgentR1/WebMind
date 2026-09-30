@@ -126,8 +126,8 @@ If the device, account, data, or business process cannot tolerate unintended ope
 
 ## Invisible mode boundaries
 
-Enable invisible mode only when the user explicitly chooses it for the current task.
-An omitted choice defaults to visible mode, independent of earlier tasks. Hiding the
+The dedicated Agent browser defaults to invisible mode. Use `--visible-mode` when
+visible mode is requested for the current task, independent of earlier tasks. Hiding the
 dedicated CDP browser window does not reduce permissions, isolate account data or remove
 the real effects of actions. The user cannot intervene through the desktop mouse or
 keyboard; pause when manual takeover is needed.
