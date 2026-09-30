@@ -60,11 +60,13 @@ WebMind is a local Claude Code plugin for macOS that provides CDP/DOM browser co
 
 ## 每次任务的浏览器模式 / Browser Mode per Task
 
-用户可以在每次任务前明确选择“使用不可见模式”，让专用 CDP 浏览器不显示窗口。未说明时默认使用可见模式，不沿用上次选择。不可见模式通过 CDP 操作，不能用桌面鼠标键盘直接操作隐藏页面；需要人工登录或接管时应暂停并切换到可见模式。具体命令见[使用教程](使用教程.md#42-每次任务前选择是否使用不可见模式)。
+专用 CDP 浏览器默认使用不可见模式，不显示窗口。用户可为当前任务选择可见模式（`--visible-mode`）；模式参数仅控制新浏览器启动。已有浏览器会告知实际模式及 ESC 停止提示后继续复用，不因模式不同报错。不可见模式通过 CDP 操作，不能用桌面鼠标键盘直接操作隐藏页面；需要人工登录或接管时应暂停并切换到可见模式。具体命令见[使用教程](使用教程.md#42-每次任务前选择是否使用不可见模式)。
 
-Users may explicitly choose invisible mode for each task to run the dedicated CDP
-browser without a visible window. Omission defaults to visible mode; previous choices
-are not carried forward. Invisible pages use CDP, not desktop mouse/keyboard input.
+The dedicated CDP browser defaults to invisible mode without a visible window.
+Users may choose visible mode for the current task with `--visible-mode`; previous
+launch choices are not saved. An existing verified browser keeps its actual mode;
+the Agent announces it with the ESC stop notice before continuing. Invisible pages use CDP,
+not desktop mouse/keyboard input.
 Pause for a transition to visible mode when manual authentication or takeover is needed.
 See the [User Guide](User%20Guide.md#42-choose-invisible-mode-for-each-task).
 

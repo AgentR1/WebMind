@@ -9,6 +9,8 @@ The complete standalone [User Guide](../../User%20Guide.md) and
 [Safety Instructions](../../Safety%20Instructions.md) are bundled in this edition. Chinese versions are available as [使用教程](../../使用教程.md) and [安全须知](../../安全须知.md).
 Implementation: `scripts/webmind_cdp.py`.
 
-Visible mode is the default for every task. Only an explicit current-task user choice
-enables invisible mode: `webmind cdp --invisible-mode launch --json`. Repeat the flag
-before every CDP subcommand in that task. See SKILL.md for mode checks and manual takeover.
+New dedicated Agent browsers default to invisible mode: `webmind cdp launch --json`.
+Use `webmind cdp --visible-mode launch --json` to request a visible new browser. Existing
+verified browsers keep their actual mode, even when it differs from the request. Relay
+`browser_mode_notice` before page actions, then continue without another confirmation.
+`--invisible-mode` remains supported; the two mode flags are mutually exclusive. See SKILL.md for mode checks and manual takeover.

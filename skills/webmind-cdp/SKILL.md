@@ -27,19 +27,23 @@ Mem at task start and reconcile it after verified completion.
 
 ## Task browser mode
 
-At the start of each task, use invisible mode only if the user explicitly selected it
-for this task. Otherwise use visible mode immediately; do not block on an unanswered
-mode question. Do not inherit a previous task's choice or save it as a Mem preference.
+When no dedicated Agent browser is running, launch in invisible mode by default,
+or use visible mode when requested. Do not save launch choices as a Mem preference.
+If a verified browser is already running, reuse its actual mode even when it differs
+from the requested launch mode. Older Mem instructions requiring visible defaults
+or rejecting a browser solely for a mode difference are obsolete.
 Use the user-facing name "不可见模式" / "invisible mode".
 This specifically means Chrome headless mode (`--headless`) for the Mem-bound dedicated
 Agent browser, never minimizing/hiding a visible window, opening an inactive tab or
 running an unrelated background process. It does not apply to the user's everyday browser.
 
-For invisible mode, pass the global `--invisible-mode` flag before the subcommand
-on EVERY CDP call, including self-check, launch, tabs and later page actions. Omit it
-for visible mode. It is separate from `new-tab --background`, which only controls tab
-activation and does not select the browser mode. Include the selected mode in the
-opening notice. Profile/port selection and verification remain unchanged.
+Mode flags select how to launch a new browser: omit them or use `--invisible-mode`
+for invisible mode; use `--visible-mode` for visible mode. Put the flag before the
+subcommand; the two flags are mutually exclusive. An existing verified browser keeps
+its actual mode regardless of those flags. `new-tab --background` controls only tab
+activation. Profile/port selection and verification remain mandatory.
+For example, `webmind cdp --visible-mode launch --json` opens a visible browser if none
+is running; later `webmind cdp --no-auto-launch tabs --json` reuses its visible mode.
 
 ```text
 webmind cdp --invisible-mode launch --url https://example.com --json
@@ -54,10 +58,21 @@ screenshots, OS mouse and keyboard cannot operate that hidden page; do not fall 
 to them for it. Switching tabs does not display an invisible browser. `--new-window`
 cannot be combined with invisible mode.
 
-Every connection checks the actual mode along with the Profile. A mismatch fails
-without reuse, browser termination or automatic restart. Explain the mismatch; do not
-add/remove the flag just to fit an existing process against this task's selection.
-To switch modes or obtain manual authentication/native-dialog handling, first check
+Every connection verifies the Profile and reads the actual mode. A Profile mismatch
+still fails; a visible/invisible mode difference does not. Before page actions, run
+`webmind cdp tabs --json` (or the read-only `self-check --json` for an existing browser).
+If `browser_reused` is true, tell the user once before continuing:
+
+> 已有浏览器正在使用XXX模式，Agent将继续使用已有浏览器工作；如果想要切换，请按下ESC阻止Agent。
+
+Replace XXX with 可见 or 不可见 based on `browser_mode`, or relay `browser_mode_notice`
+from the JSON result. Do not wait for another confirmation. Announce again only if the
+actual mode changes. ESC refers to the host Agent stop shortcut, not a webpage key
+event; if the host does not support ESC, use its stop control. Do not add a global
+keyboard hook. Tool decisions must follow actual `browser_mode`, not the launch flag.
+No browser is closed or restarted just to match a requested mode.
+To switch modes after the user stops or requests a change, or to obtain manual
+authentication/native-dialog handling, first check
 unfinished work and obtain authorization to close the dedicated browser. Confirm it
 has exited before relaunching the same Profile in the chosen mode; never run two
 instances on the same Profile. Do not kill unrelated Chrome processes. Page state may
@@ -113,8 +128,9 @@ webmind cdp --no-auto-launch close-tab --target-id TARGET --json
 webmind cdp --no-auto-launch navigate --target-id TARGET --url https://example.com --wait-load --json
 ```
 
-The following examples use the default visible mode; add `--invisible-mode` before
-the subcommand throughout a task explicitly selected for invisible mode.
+The following examples launch in invisible mode by default if needed. Use
+`--visible-mode` before the subcommand to request a visible new browser. Existing
+verified browsers are reused in their actual mode. `--invisible-mode` remains optional.
 
 `new-tab` creates a tab, normally activating it. `switch-tab` activates and requests
 foreground presentation of an existing tab; it does not create or close one. System

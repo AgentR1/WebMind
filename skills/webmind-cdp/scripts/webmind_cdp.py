@@ -110,8 +110,8 @@ def load_browser_configuration() -> Dict[str, Any]:
 
 
 def apply_browser_configuration(args: argparse.Namespace) -> Dict[str, Any]:
-    if getattr(args, "invisible_mode", False) and getattr(args, "new_window", False):
-        raise ValueError("--new-window is only available in visible mode; remove it for invisible mode")
+    if getattr(args, "invisible_mode", True) and getattr(args, "new_window", False):
+        raise ValueError("--new-window requires --visible-mode before the launch subcommand")
     config = load_browser_configuration()
     requested_endpoint = getattr(args, "endpoint", None)
     if requested_endpoint and requested_endpoint.rstrip("/") != config["endpoint"]:
@@ -356,7 +356,7 @@ def launch_chrome(args: argparse.Namespace) -> Dict[str, Any]:
         "--proxy-bypass-list=<-loopback>;localhost;127.0.0.1;::1",
     ]
     command.append("--enable-automation")
-    if getattr(args, "invisible_mode", False):
+    if getattr(args, "invisible_mode", True):
         command.extend(["--headless", "--window-size=1280,800"])
     if getattr(args, "new_window", False):
         command.append("--new-window")
@@ -429,7 +429,7 @@ def profile_from_browser_arguments(arguments: List[str]) -> Path:
 
 def requested_browser_mode(args: argparse.Namespace) -> str:
     # Per invocation, never inferred from Mem, environment or an earlier task.
-    return "invisible" if getattr(args, "invisible_mode", False) else "visible"
+    return "invisible" if getattr(args, "invisible_mode", True) else "visible"
 
 
 def browser_mode_from_arguments(arguments: List[str]) -> str:
@@ -477,21 +477,25 @@ def verify_endpoint_profile(args: argparse.Namespace, version: Dict[str, Any]) -
             "Refusing to reuse this browser. Re-enter initialization with the intended Mem/profile."
         )
     actual_mode = browser_mode_from_arguments(arguments)
-    expected_mode = requested_browser_mode(args)
-    if actual_mode != expected_mode:
-        raise RuntimeError(
-            f"CDP browser mode mismatch: requested {expected_mode}, running {actual_mode}. "
-            "Refusing to reuse or restart this browser automatically. Close the dedicated "
-            "browser only after checking unfinished work and obtaining authorization, then "
-            "launch in the mode selected for this task. Invisible mode requires explicit "
-            "user choice and --invisible-mode on every CDP command."
-        )
     args.browser_mode = actual_mode
     return str(actual)
 
 
+def browser_mode_notice(args: argparse.Namespace) -> Optional[str]:
+    if not getattr(args, "browser_reused", False):
+        return None
+    mode = {"visible": "可见", "invisible": "不可见"}.get(getattr(args, "browser_mode", None))
+    if mode is None:
+        return None
+    return (
+        f"已有浏览器正在使用{mode}模式，Agent将继续使用已有浏览器工作；"
+        "如果想要切换，请按下ESC阻止Agent。"
+    )
+
+
 def ensure_endpoint(args: argparse.Namespace, *, launch_if_missing: Optional[bool] = None) -> Dict[str, Any]:
     apply_browser_configuration(args)
+    args.browser_reused = False
     launch_info = None
     try:
         version = get_version(args.endpoint)
@@ -511,10 +515,12 @@ def ensure_endpoint(args: argparse.Namespace, *, launch_if_missing: Optional[boo
                 )
             raise RuntimeError(f"launched Chrome but CDP endpoint was not ready after {timeout} seconds: {args.endpoint}{detail}")
         version = get_version(args.endpoint)
-    # Keep verification outside the launch fallback: mismatch/unknown identity
+    # Keep verification outside the launch fallback: profile mismatch/unknown identity
     # must never cause a second launch, and a newly reachable port also needs proof.
     profile = verify_endpoint_profile(args, version)
-    return {"launch": launch_info, "profile": profile, "browser_mode": args.browser_mode}
+    args.browser_reused = launch_info is None
+    return {"launch": launch_info, "profile": profile, "browser_mode": args.browser_mode,
+            "browser_reused": args.browser_reused}
 
 
 def get_version(endpoint: str) -> Dict[str, Any]:
@@ -1054,6 +1060,7 @@ def connect_target(args: argparse.Namespace) -> tuple[CDPClient, Dict[str, Any]]
 
 def command_self_check(args: argparse.Namespace) -> Dict[str, Any]:
     config = apply_browser_configuration(args)
+    args.browser_reused = False
     payload: Dict[str, Any] = {
         "ok": True,
         "action": "self-check",
@@ -1073,6 +1080,7 @@ def command_self_check(args: argparse.Namespace) -> Dict[str, Any]:
         payload["version"] = get_version(args.endpoint)
         payload["profile"] = verify_endpoint_profile(args, payload["version"])
         payload["profile_verified"] = True
+        args.browser_reused = True
         tabs = get_tabs(args.endpoint)
         payload["tab_count"] = len(tabs)
         payload["page_count"] = len([tab for tab in tabs if tab.get("type") == "page"])
@@ -1456,10 +1464,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--debug-address", default=DEFAULT_DEBUG_ADDRESS, help="address Chrome binds for remote debugging")
     parser.add_argument("--launch-timeout", type=float, default=60.0, help="seconds to wait after launching Chrome (default: 60)")
     parser.add_argument("--no-auto-launch", dest="auto_launch", action="store_false", help="do not launch Chrome when the local CDP endpoint is down")
-    parser.add_argument(
-        "--invisible-mode", action="store_true",
-        help="explicitly use a browser without a visible window for this task; repeat before every CDP subcommand (default: visible mode)",
+    browser_mode = parser.add_mutually_exclusive_group()
+    browser_mode.add_argument(
+        "--invisible-mode", dest="invisible_mode", action="store_true",
+        help="launch without a visible window (default); existing browsers keep their actual mode",
     )
+    browser_mode.add_argument(
+        "--visible-mode", dest="invisible_mode", action="store_false",
+        help="launch a visible browser if none is running; existing browsers keep their actual mode",
+    )
+    parser.set_defaults(invisible_mode=True)
     parser.set_defaults(auto_launch=True)
     parser.add_argument("--json", action="store_true", help="emit machine-readable JSON where supported")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -1594,6 +1608,10 @@ def main() -> int:
         result = args.func(args)
         result["requested_browser_mode"] = requested_browser_mode(args)
         result["browser_mode"] = getattr(args, "browser_mode", None)
+        result["browser_reused"] = getattr(args, "browser_reused", False)
+        notice = browser_mode_notice(args)
+        if notice and result.get("ok"):
+            result["browser_mode_notice"] = notice
     except urllib.error.URLError as exc:
         fail(f"cannot reach CDP endpoint {args.endpoint}: {exc}", getattr(args, "json", False))
     except Exception as exc:  # noqa: BLE001 - user-facing CLI should stay concise
@@ -1605,6 +1623,8 @@ def main() -> int:
         print(f"{result.get('action', args.command)}: {'ok' if result.get('ok') else 'not ok'}")
         if result.get("browser_mode"):
             print(f"browser mode: {result['browser_mode']}")
+        if result.get("browser_mode_notice"):
+            print(result["browser_mode_notice"])
         if result.get("error"):
             print(f"error: {result['error']}", file=sys.stderr)
         if "output" in result:
