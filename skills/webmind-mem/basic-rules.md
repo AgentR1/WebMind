@@ -16,10 +16,22 @@ WebMind 对用户提供三种使用模式，必须按以下含义理解用户的
 2. **Agent 专用浏览器模式**：使用所选 Mem 绑定的独立 Profile，通过 CDP/DOM 操作，默认不可见；需要人工登录或接管时，通过 `--visible-mode` 切换到可见模式。
 3. **不可见模式**：用户提到“不可见模式”，明确指以 Chrome **headless** 模式（`--headless`）运行 **Agent 专用浏览器**，使用同一 Mem 绑定的独立 Profile，通过 CDP/DOM 操作。不代表最小化或遮挡窗口、不激活标签页、让其他进程在后台运行，也不能用于用户自己的日常浏览器。
 
+- If the user does not specify which browser type the task should use, default to the dedicated CDP browser in invisible (headless) mode. Before browser actions, announce: "默认使用 CDP 专用浏览器的不可见模式；如果需要中断，请按下 ESC 阻止 Agent。" Continue without waiting for an additional choice. ESC refers to the host Agent stop control; use the host's stop button if ESC is unavailable. An existing verified browser still keeps its actual mode under the reuse rules below.
+- 如果用户没有说明任务需要使用什么类型的浏览器，默认使用 CDP 专用浏览器的不可见（headless）模式。在浏览器操作前告知：“默认使用 CDP 专用浏览器的不可见模式；如果需要中断，请按下 ESC 阻止 Agent。” 随后继续，不等待额外选择。ESC 指宿主的 Agent 停止操作；宿主不支持 ESC 时使用其停止按钮。已有浏览器仍按下述复用规则使用经过核验的实际模式。
+
 - Use invisible mode by default for the dedicated Agent browser; use visible mode when requested for the current task. Never infer the choice from earlier tasks or save it as a default preference. Mode flags control new launches only: `cdp --visible-mode` requests a visible new browser; `--invisible-mode` is optional for the default. Reuse an existing verified browser in its actual mode after relaying `browser_mode_notice` once before page actions, without waiting for confirmation. Keep Profile/port verification and actual-mode reporting enabled.
 - 每次任务默认使用不可见的 Agent 专用浏览器；用户要求可见模式时使用可见模式。不沿用上次选择，不保存为默认偏好。模式参数仅决定新浏览器的启动方式：`cdp --visible-mode` 请求可见启动，默认不可见启动可省略模式参数或携带 `--invisible-mode`。已有浏览器通过 Profile、端口核验后按实际模式继续使用，不因模式不同报错。在页面操作前告知一次：“已有浏览器正在使用XXX模式，Agent将继续使用已有浏览器工作；如果想要切换，请按下ESC阻止Agent。” 将 XXX 替换为实际模式，随后直接继续，不等待额外确认。ESC 指宿主的 Agent 停止操作，不是发送给网页的按键。
 - Desktop screenshots, mouse and keyboard cannot operate the invisible page. Pause for a user-authorized transition to visible mode when manual authentication or takeover is needed; all privacy and authorization rules still apply.
 - 桌面截图、鼠标和键盘不能操作不可见页面。需要人工认证或接管时，暂停并经用户授权切换到可见模式；所有隐私与授权规则继续适用。
+
+## Command failures and permissions / 命令失败与权限处理
+
+- When a command fails, do not rush to repeat it. Inspect the error and the resulting state first, and determine whether permissions caused the failure. A timeout or error does not prove that the action had no effect.
+- 命令失败后，不要急着重复执行。先检查错误信息和实际状态，判断是否由权限问题引起；超时或报错不代表操作没有生效。
+- If permissions caused the failure, use the host's corresponding approval or elevation mechanism for the specific command or resource. Request only the permissions needed for the task, and retry only after approval.
+- 如果确认是权限问题，使用当前宿主对应的审批或权限提升方式，为具体命令或资源申请所需权限；只申请任务必需的权限，获批后再执行。
+- If the elevation request fails, attempt an alternative that works around the current permission limitation only when the user explicitly permits it and that method complies with host approval and system security policies. User permission does not authorize bypassing host approvals, disabling safeguards, or evading system security controls. If no permitted alternative exists, report the blocker and pause the dependent action.
+- 如果申请提升权限失败，只有用户明确允许绕过当前权限限制，且拟采用的替代执行方式符合宿主审批和系统安全策略时，才可尝试。用户允许不代表可以绕过宿主审批、关闭防护或规避系统安全控制；没有合规替代方式时，报告阻碍并暂停依赖该权限的操作。
 
 ## Safety and privacy
 
