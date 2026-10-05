@@ -14,7 +14,7 @@ import uuid
 from runtime import ROOT, INSTALL_MARKER, MINIMUM_PYTHON, configure_utf8_stdio, data_dir as recorded_data_dir, require_native_host, venv_python
 
 NAME = 'webmind-codex'
-VERSION = '9.9.9'
+VERSION = '1.0.0'
 BEGIN = '<!-- webmind-codex:start -->'
 END = '<!-- webmind-codex:end -->'
 IGNORED = {

@@ -1,6 +1,6 @@
 {
   "edition": "webmind-codex",
-  "version": "9.9.9",
+  "version": "1.0.0",
   "platform": "Windows",
   "host": "codex",
   "install_id": "webmind-codex"

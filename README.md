@@ -2,9 +2,9 @@
 >
 > Tip: Switch branches to change between the Claude Code and Codex editions for macOS or Windows.
 >
-> 你现在看到的是 Windows 下的 Codex 版，版本号 WX 1.0。
+> 你现在看到的是 Windows 下的 Codex 版，版本号 WX 1.0.0。
 >
-> You are viewing the Codex edition for Windows, version WX 1.0.
+> You are viewing the Codex edition for Windows, version WX 1.0.0.
 
 # WebMind for Codex — Windows
 
