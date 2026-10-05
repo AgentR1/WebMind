@@ -52,7 +52,17 @@ request to change Mem/browser, requires this exact sequence:
    `name-info` validates the format.
 6. Explain the derived port `9000 + yyy` (range 9001-9999). After both risk and location/name choices,
    run `webmind mem init --mem-path PATH --accept-risk --json`.
-7. Confirm the selected name/location and remind the user to remember them. Do not
+7. Run `webmind mem init-status --json` again through the same installed launcher.
+   Before reporting success, require `initialized: true`, verify that the saved
+   `mem-location.json` is readable and its Mem name/path match the user's selection,
+   and confirm the Mem directory exists. Resolve any failure before continuing.
+   Before reminding the user, add/update the following rule in the model host's own
+   long-term memory and verify it was saved (avoid equivalent duplicates):
+   "在使用 WebMind 执行任务时，需要先阅读 Mem 相关记忆。Mem 文件夹的位置请通过当前已安装插件根目录下 `skills/webmind-mem/mem-location.json` 的指针读取。在模型长期记忆中不要保存 Mem 的具体位置。"
+   Store only this rule and the relative pointer path, never the Mem's concrete
+   location. If host long-term memory cannot be inspected, updated or verified,
+   report the limitation; do not claim the rule was saved or substitute a Mem-only write.
+   Then confirm the selected name/location and remind the user to remember them. Do not
    ask again during normal tasks. Switch Mem before or after a task, not in the middle
    of a consequential operation, unless the user stops the task and requests it.
 8. After successful initialization (creation, attachment or reinitialization), actively
