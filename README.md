@@ -52,6 +52,40 @@ WebMind is a local Claude Code plugin for macOS that provides CDP/DOM browser co
 
   Network access for the initial Python dependency installation.
 
+## 安装前必读重要说明 / Important Information Before Installation
+
+### To 用户 / To Users
+
+Claude Code 在执行安装时可能无法正确保存调用命令，因此请注意：
+
+Claude Code may not correctly retain the invocation command during installation. Please note:
+
+1. 在完成安装后，请先重启 Claude Code，再进行初始化。
+
+   After installation is complete, restart Claude Code before initialization.
+
+2. 初始化中出现“你刚刚安装不是使用的最推荐方式，是否使用最推荐的方式继续”属正常情况，可以选择继续，除非是你主动选择不把 Skill 安装在推荐区域内。
+
+   During initialization, the message “Your previous installation did not use the recommended method. Would you like to continue using the recommended method?” is expected. You may choose to continue unless you deliberately chose not to install the Skill in the recommended area.
+
+### To Agent / To Agents
+
+1. 安装后必须要求用户重启或重载宿主，让 Skill 从 `~/.claude/plugins/cache/` 加载。
+
+   After installation, require the user to restart or reload the host so that the Skill loads from `~/.claude/plugins/cache/`.
+
+2. `$WebMindRoot` 必须取自 `installed_plugins.json` 中当前启用插件对应条目的 `installPath`。
+
+   `$WebMindRoot` must come from the `installPath` of the currently enabled plugin's entry in `installed_plugins.json`.
+
+3. 禁止使用 `--plugin-dir`，禁止从下载源目录运行。禁止把 Skill 头部的 `Base directory` 当作插件根，除非它已在缓存目录内；即使如此，插件根仍须以 `installPath` 为准。
+
+   Do not use `--plugin-dir` or run from the downloaded source directory. Do not treat the Skill header's `Base directory` as the plugin root unless it is already inside the cache directory; even then, use `installPath` as the authoritative plugin root.
+
+4. 建议进行验证：确认 `Base directory` 位于 `.claude/plugins/cache/` 下，且 `doctor --json` 的 `plugin_root` 与它所属的插件根目录一致，并与 `installPath` 一致。若 `Base directory` 指向 `skills/<skill-name>`，应向上两级确定所属插件根目录，再比较规范化路径。若出现任一不符，尝试检查并修正错误。
+
+   Recommended verification: confirm that `Base directory` is under `.claude/plugins/cache/`, and that the `plugin_root` reported by `doctor --json` matches its containing plugin root and `installPath`. If `Base directory` points to `skills/<skill-name>`, go up two directory levels to identify the containing plugin root, then compare canonical paths. If any check fails, investigate and attempt to correct the error.
+
 ## 安装提示 / Installation Notice
 
 > 麻烦请先阅读 [安全须知](安全须知.md)，再阅读 [使用教程](使用教程.md)；使用教程中包含了具体的安装方式。
