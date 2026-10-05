@@ -2,9 +2,9 @@
 >
 > Tip: Switch branches to change between the Claude Code and Codex editions for macOS or Windows.
 >
-> 你现在看到的是 macOS 下的 Codex 版，版本号 MX 1.0。
+> 你现在看到的是 macOS 下的 Codex 版，版本号 MX 1.0.0。
 >
-> You are viewing the Codex edition for macOS, version MX 1.0.
+> You are viewing the Codex edition for macOS, version MX 1.0.0.
 
 # WebMind for Codex（macOS）
 
