@@ -193,7 +193,7 @@ def endpoint_url(endpoint: str, path: str) -> str:
 
 
 def http_json(url: str, timeout: float = 5.0) -> Any:
-    request = urllib.request.Request(url, headers={"User-Agent": "webmind_cdp/1.0"})
+    request = urllib.request.Request(url, headers={"User-Agent": "webmind_cdp/1.0.0"})
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     with opener.open(request, timeout=timeout) as response:  # noqa: S310 - local/user-provided CDP endpoint
         return json.loads(response.read().decode("utf-8"))
