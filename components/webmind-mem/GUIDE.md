@@ -29,6 +29,80 @@ pause for a user-authorized transition to visible mode when those tools are need
 
 ## Mandatory initialization
 
+### Pre-initialization checks
+
+After the user requests initialization, run this check once before creating, attaching,
+migrating or selecting a Mem. Apply it to reinitialization and guided first use too.
+Skill installation here means installing WebMind's files into the Agent's Skill/plugin
+area; it is separate from Mem initialization and from accepting Mem risks.
+
+1. **Check the actual default invocation first.** Use the host's normal
+   `$webmind-codex` Skill invocation/selector.
+   If already invoked, inspect that loaded entry rather than recursively starting
+   another initialization. Record the loaded `SKILL.md` path and run its normal
+   launcher in diagnostic mode, using the root resolved from that loaded entry:
+
+   ```powershell
+   & "$WebMindRoot\scripts\webmind.ps1" doctor --json
+   ```
+
+   Read `root` in the JSON and compare canonical paths with the loaded Skill's
+   package root. Do not substitute a source/download path or a remembered launcher.
+   A nonzero doctor exit can still return its root; assess installation placement
+   before assessing dependencies. A missing/unreadable path or failed invocation
+   cannot be reported as a successful installation check.
+
+2. **Confirm a normal, stable installation in the Agent's Skill area.** Codex: a
+   complete `webmind-codex` copy under the user or project `.agents/skills` area,
+   or another verified host-managed Skill area.
+   Check the correct platform/host, the launcher, runtime scripts, requirements,
+   entry metadata, and all six component/Skill directories. The resolved files must
+   actually live in that area; a pointer, symlink or junction back to an outside
+   source folder does not count as the recommended stable copy. Use the current
+   host's verified discovery locations; do not infer them from a folder name alone.
+   If this check passes, proceed directly to the environment check in step 4.
+
+3. **Ask before changing a non-recommended installation.** Ask the following question
+   in the user's language, preserving this wording for Chinese:
+
+   > 该Skill的安装（注意此处安装不是指Mem文件夹初始化）有多种方式，最推荐的是 将其稳定安装在agent的skill区域中，其它方式都未经过测试验证，不一定能稳定使用。你刚刚安装不是使用的最推荐方式，是否使用最推荐的方式继续
+
+   Wait for an explicit answer. If **yes**, first inspect only the host's Skill/plugin
+   area for an existing complete WebMind installation of this platform and host.
+   If one is already valid, reuse it and change only the Agent's default invocation
+   or source selection to that copy; do not reinstall it.
+   If no valid installed copy exists, install the complete edition with its
+   `scripts/install.ps1 --scope user` installer (or the user-selected project scope).
+   Update only the relevant invocation/source selection, preserving unrelated settings.
+   Refresh discovery or reload/restart the host if required, invoke the Skill through
+   its default entry again, and repeat step 1. Verify both the newly loaded Skill path
+   and the diagnostic `root` resolve to the installed copy in the Agent's area.
+   Merely changing the local launcher variable does not prove the default call changed.
+   If the actual invocation cannot yet be verified, stop before formal Mem initialization.
+   If **no**, honor the user's chosen installation/loading method, finish any installation
+   they requested, and continue from that selected copy to step 4. Do not force a move
+   into the recommended area or treat this answer as acceptance of Mem risks.
+
+4. **Check the environment from the final selected copy.** Run `doctor --json` through
+   that copy's launcher, or reuse the diagnostic just collected if the copy and
+   environment have not changed. Require `runtime_ready: true`, `native_host: true`,
+   all dependencies/components present, and `browser_available: true`.
+   Report desktop/GUI readiness separately and resolve permissions required for the
+   intended mode through the host's normal approval process. Do not launch a browser,
+   capture screenshots or send input just to perform this preflight. Explain failures,
+   repair only within the user's authorized scope, and rerun the affected check.
+   If required environment checks still fail, stop before formal Mem initialization.
+   `initialization.initialized: false` is expected before first use and is not an
+   installation/environment failure; never initialize Mem just to make doctor green.
+
+5. **Start formal initialization only after the checks above pass.** Use the final
+   selected copy's launcher and location pointer for the existing flow below.
+   These checks do not replace the user's risk acceptance or Mem location/name choices.
+
+Host invocation/discovery reference: [official Codex Skill discovery](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills).
+
+### Formal Mem initialization
+
 Run `webmind mem init-status --json`. Missing or invalid initialization, or an explicit
 request to change Mem/browser, requires this exact sequence:
 

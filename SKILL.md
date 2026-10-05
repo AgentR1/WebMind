@@ -22,6 +22,10 @@ permission readiness are distinct; doctor success does not prove a real task wor
 
 ## Initialization gate
 
+Before a user-requested initialization, complete the memory guide's
+[pre-initialization checks](components/webmind-mem/GUIDE.md#pre-initialization-checks)
+for the actual Skill installation and environment, then start the formal Mem flow.
+
 Before normal use, read [memory](components/webmind-mem/GUIDE.md). Explain residual risk,
 obtain acceptance, and let the user choose the external Mem parent and `xxx-yyy-mem`
 name before `--accept-risk`. Explicitly explain during initialization that both `xxx`
