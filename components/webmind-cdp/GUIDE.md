@@ -109,10 +109,9 @@ or send a fresh opening notice before relaunching. `self-check` never launches a
 
 ## Targets, tabs and command placement
 
-Run `tabs`, inspect the desired page and specify its real `--target-id` on subsequent
-operations. URL/title filters select a matching tab; never rely on implicit selection
-for consequential actions. Without a selector the implementation may pick the first
-tab, not the tab you intended. Global flags go before the subcommand.
+Run `tabs`, inspect the desired page and specify its real `--target-id` on every command
+that operates on an existing tab. The CLI requires the exact target ID and does not
+select a tab by URL/title matching or list order. Global flags go before the subcommand.
 
 ```text
 webmind cdp self-check --json
