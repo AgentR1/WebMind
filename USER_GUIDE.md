@@ -23,6 +23,8 @@ WebMind includes no browser, credentials, active Mem, signed-in profile, or Pyth
 
 ## 2. How to install WebMind and its dependencies
 
+**For stable, long-term use of this Skill, a permanent installation is strongly recommended: copy all required Skill files, excluding the Mem folder created during initialization, into the Agent's Skill/plugin storage area, rather than using a temporary installation that only creates a pointer to the Skill's actual storage location.**
+
 Prepare a native Windows desktop, Claude Code, native Windows Python 3.10+, Chrome/Chromium/Edge, and network access for the first dependency installation. Do not control the Windows desktop through WSL.
 
 Every method must keep the complete distribution containing `.claude-plugin`, `scripts`, and `skills`, `requirements.txt`, guides, and safety material. Never copy only one component or move `.venv` between computers.
