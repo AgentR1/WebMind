@@ -23,7 +23,7 @@ WebMind includes no browser, credentials, active Mem, signed-in profile, or Pyth
 
 ## 2. How to install WebMind and its dependencies
 
-**For stable, long-term use of this Skill, a permanent installation is strongly recommended: copy all required Skill files, excluding the Mem folder created during initialization, into the Agent's Skill/plugin storage area, rather than using a temporary installation that only creates a pointer to the Skill's actual storage location.**
+**For stable, long-term use of WebMind, we strongly recommend registering the plugin source through Claude Code's marketplace, then installing WebMind with the plugin installation command so Claude Code can manage the plugin. Simply copying files into the plugin cache directory is not recommended. See section 2.2 for the steps.**
 
 Prepare a native Windows desktop, Claude Code, native Windows Python 3.10+, Chrome/Chromium/Edge, and network access for the first dependency installation. Do not control the Windows desktop through WSL.
 
@@ -93,6 +93,12 @@ You must still load the plugin through `--plugin-dir` or the marketplace. Never 
 
 ## 3. Initialization
 
+**Do not install and initialize in the same conversation. After installation, restart Claude Code before initializing in a new conversation.**
+
+Before initialization, the Agent should invoke `/webmind-claudecode:webmind-mem` and verify the loaded Skill, the complete plugin files, and the plugin root returned by diagnostics. If valid, report the actual Skill path and plugin root. Remind the user to avoid moving the Skill or modifying its files: the commands are stored there rather than embedded in Claude Code. If invocation fails, files are incomplete, or the paths do not match, report an installation problem and ask the user to reinstall, restart Claude Code, and initialize in a new conversation.
+
+After invocation verification, check Python, dependencies, all Skills, the browser, and relevant permissions. Begin formal Mem initialization only when the environment is ready. See the [Mem pre-initialization checks](skills/webmind-mem/SKILL.md#pre-initialization-checks) for the full procedure.
+
 Mem is a user-selected external directory containing verified reusable Markdown guidance and WebMind's dedicated browser profile. The profile may retain sign-in state, so never treat a complete Mem as an ordinary shareable project folder.
 
 ### 3.1 Automatic initialization
@@ -134,7 +140,7 @@ For example, `work-42-mem` uses `work-42-mem-Profile` and port 9042 (`9000 + 42`
 If automatic initialization fails, ask the agent to try the guided flow again:
 
 ```text
-Check WebMind initialization again and follow the User Guide's automatic initialization flow. Explain risk first, then ask for my Mem location and name. Do not accept risk or choose a path or name for me.
+Check WebMind initialization again according to the User Guide. First remind me to restart Claude Code after installation and initialize in a new conversation. Verify the Skill invocation, report its actual location and file-storage reminder, then check the environment. Once these checks pass, explain risk and ask for my Mem location and name. Do not accept risk or choose a path or name for me.
 ```
 
 Use manual commands only if automatic initialization consistently fails:

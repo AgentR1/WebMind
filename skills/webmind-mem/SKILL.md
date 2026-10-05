@@ -37,10 +37,18 @@ pause for a user-authorized transition to visible mode when those tools are need
 
 After the user requests initialization, run this check once before creating, attaching,
 migrating or selecting a Mem. Apply it to reinitialization and guided first use too.
-Skill installation here means installing WebMind's files into the Agent's Skill/plugin
-area; it is separate from Mem initialization and from accepting Mem risks.
+Skill installation is separate from Mem initialization and from accepting Mem risks.
 
-1. **Check the actual default invocation first.** Use the host's normal
+1. **Explain the required restart and separate conversation first.** Tell the user
+   in their language; preserve this wording for Chinese:
+
+   > 初始化和安装不要在同一个对话框内进行。在安装后一定要重启Claude code再进行初始化。
+
+   After installation, the user must restart Claude Code and begin initialization
+   in a separate conversation. If installation took place in the current conversation,
+   give this notice and stop before continuing initialization in that conversation.
+
+2. **Invoke and verify the actual Skill, then report its location.** Use the host's normal
    `/webmind-claudecode:webmind-mem` Skill invocation.
    If already invoked, inspect that loaded entry rather than recursively starting
    another initialization. Record the loaded `SKILL.md` path and run its normal
@@ -53,44 +61,23 @@ area; it is separate from Mem initialization and from accepting Mem risks.
    Read `plugin_root` in the JSON and compare canonical paths with the loaded Skill's
    package root. Do not substitute a source/download path or a remembered launcher.
    A nonzero doctor exit can still return its root; assess installation placement
-   before assessing dependencies. A missing/unreadable path or failed invocation
-   cannot be reported as a successful installation check.
-
-2. **Confirm a normal, stable installation in the Agent's Skill area.** Claude Code:
-   the complete enabled `webmind-claudecode` plugin installed in the host's persistent
-   plugin area (normally under `~/.claude/plugins/`), including all six `skills/`
-   folders. A session-only `--plugin-dir` source directory does not meet this recommendation.
+   and file completeness before assessing dependencies.
    Check the correct platform/host, the launcher, runtime scripts, requirements,
-   entry metadata, and all six component/Skill directories. The resolved files must
-   actually live in that area; a pointer, symlink or junction back to an outside
-   source folder does not count as the recommended stable copy. Use the current
-   host's verified discovery locations; do not infer them from a folder name alone.
-   If this check passes, proceed directly to the environment check in step 4.
+   entry metadata, and all six Skill directories. A complete, correctly loaded plugin
+   is valid regardless of its installation directory. If invocation fails, the loaded
+   files are missing/unreadable/incomplete, or the reported root does not match, tell
+   the user that installation has a problem and they should reinstall. Stop before
+   environment checks or formal Mem initialization; remind them to restart Claude Code
+   after reinstalling and initialize in a new conversation.
 
-3. **Ask before changing a non-recommended installation.** Ask the following question
-   in the user's language, preserving this wording for Chinese:
+   If valid, tell the user the actual absolute `SKILL.md` path and plugin root, and
+   give this reminder in their language:
 
-   > 该Skill的安装（注意此处安装不是指Mem文件夹初始化）有多种方式，最推荐的是 将其稳定安装在agent的skill区域中，其它方式都未经过测试验证，不一定能稳定使用。你刚刚安装不是使用的最推荐方式，是否使用最推荐的方式继续
+   > 请不要随意更改该Skill的位置或修改其文件，因为各种命令均保存在此处，而非内嵌于Claude code中。
 
-   Wait for an explicit answer. If **yes**, first inspect only the host's Skill/plugin
-   area for an existing complete WebMind installation of this platform and host.
-   If one is already valid, reuse it and change only the Agent's default invocation
-   or source selection to that copy; do not reinstall it.
-   If no valid installed copy exists, use the host's persistent plugin installation
-   with this edition's marketplace manifest, then run `scripts/install.ps1` from the
-   actual installed plugin root to prepare dependencies. Keep the complete plugin
-   together; do not copy only the Mem Skill into a standalone skills folder.
-   Update only the relevant invocation/source selection, preserving unrelated settings.
-   Refresh discovery or reload/restart the host if required, invoke the Skill through
-   its default entry again, and repeat step 1. Verify both the newly loaded Skill path
-   and the diagnostic `plugin_root` resolve to the installed copy in the Agent's area.
-   Merely changing the local launcher variable does not prove the default call changed.
-   If the actual invocation cannot yet be verified, stop before formal Mem initialization.
-   If **no**, honor the user's chosen installation/loading method, finish any installation
-   they requested, and continue from that selected copy to step 4. Do not force a move
-   into the recommended area or treat this answer as acceptance of Mem risks.
+   Continue using that verified copy without moving it or changing the default invocation.
 
-4. **Check the environment from the final selected copy.** Run `doctor --json` through
+3. **Check the environment from the verified copy.** Run `doctor --json` through
    that copy's launcher, or reuse the diagnostic just collected if the copy and
    environment have not changed. Require `ok: true` in doctor's JSON, native Windows,
    Python 3.10+, and all dependencies/executable components present. Check that the
@@ -105,8 +92,8 @@ area; it is separate from Mem initialization and from accepting Mem risks.
    `initialization.initialized: false` is expected before first use and is not an
    installation/environment failure; never initialize Mem just to make doctor green.
 
-5. **Start formal initialization only after the checks above pass.** Use the final
-   selected copy's launcher and location pointer for the existing flow below.
+4. **Start formal initialization only after the checks above pass.** Use the verified
+   copy's launcher and location pointer for the existing flow below.
    These checks do not replace the user's risk acceptance or Mem location/name choices.
 
 Host invocation/discovery reference: [official Claude Code plugin loading](https://code.claude.com/docs/en/plugins#make-an-installed-plugin-available-in-your-session).
