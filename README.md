@@ -59,6 +59,25 @@ WebMind is a Codex Skill for native macOS. Within the user's authorization, it o
 >
 > Please read the [Safety Instructions](Safety%20Instructions.md) first, followed by the [User Guide](User%20Guide.md), which contains the detailed installation methods.
 
+## 重要说明 / Important Notice
+
+WebMind 提供**用户自己浏览器模式、Agent 专用浏览器模式和不可见模式**，默认使用不可见模式下的 Agent 专用 CDP 浏览器。
+
+WebMind offers three modes: **user's own browser mode, dedicated Agent browser mode, and invisible mode**. By default, it uses the dedicated Agent CDP browser in invisible mode.
+
+> [!IMPORTANT]
+> **首次登录建议先使用可见模式。** 专用 CDP 浏览器使用与日常浏览器隔离的独立 Profile，可保存登录状态等浏览器数据。首次创建的 Profile 不包含你在日常浏览器中已有的登录状态。建议在安装并初始化 Mem 后，或首次执行需要登录的网站任务前，以可见模式（`--visible-mode`）打开专用浏览器，并由你本人完成所需网站的登录。
+>
+> **Use visible mode for the first sign-in.** The dedicated CDP browser uses a separate profile from your everyday browser and can retain sign-in state and other browser data. A newly created profile does not inherit your everyday browser's sign-in state. After installing WebMind and initializing Mem, or before the first task on a site that requires sign-in, open the dedicated browser in visible mode (`--visible-mode`) and sign in to the required sites yourself.
+
+登录状态通常会保留在同一个 Mem 绑定的 Profile 中。在登录状态仍有效时，后续任务一般无需每次先打开可见模式登录，可直接使用不可见模式；首次登录新网站或登录状态失效时，再使用可见模式完成登录。
+
+Sign-in state usually persists in the profile bound to the same Mem. While it remains valid, later tasks can generally run in invisible mode without a visible sign-in step each time. Use visible mode again when signing in to a new site or when an existing session is no longer valid.
+
+**请先在本机安装 Google Chrome，再执行浏览器任务。** 专用 CDP 浏览器由本机已安装的 Chrome 启动，并使用独立 Profile；WebMind 不包含 Chrome 本体。
+
+**Install Google Chrome on your computer before running browser tasks.** The dedicated CDP browser runs using your locally installed Chrome with a separate profile; WebMind does not bundle Chrome.
+
 ## 每次任务的浏览器模式 / Browser Mode per Task
 
 专用 CDP 浏览器默认使用不可见模式，不显示窗口。用户可为当前任务选择可见模式（`--visible-mode`）；模式参数仅控制新浏览器启动。已有浏览器会告知实际模式及 ESC 停止提示后继续复用，不因模式不同报错。不可见模式通过 CDP 操作，不能用桌面鼠标键盘直接操作隐藏页面；需要人工登录或接管时应暂停并切换到可见模式。具体命令见[使用教程](使用教程.md#42-每次任务前选择是否使用不可见模式)。

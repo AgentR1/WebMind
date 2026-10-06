@@ -238,6 +238,11 @@ Invisible mode is a way to start the dedicated Agent browser with its independen
 Profile; it is not available for everyday Chrome. It is the default for the dedicated
 Agent browser; request visible mode explicitly for the current task when needed.
 
+> [!IMPORTANT]
+> **Download and install Google Chrome before running browser tasks.** The default dedicated Agent CDP browser runs using your locally installed Chrome with a separate profile; WebMind does not bundle Chrome.
+>
+> **For sites that require sign-in, complete the first sign-in yourself in visible mode.** The dedicated Agent browser starts in invisible mode by default, and a newly created profile does not inherit your everyday browser's sign-in state. After initializing Mem and before the first task on a site that requires sign-in, ask the Agent to open the dedicated browser in visible mode (`--visible-mode`), then sign in to the required sites yourself. Sign-in state usually persists in the profile bound to the same Mem. While it remains valid, later tasks can generally run in invisible mode without signing in manually each time. Use visible mode again when signing in to a new site or when an existing session is no longer valid.
+
 #### Dedicated Agent browser mode (visible)
 
 WebMind starts an installed Chrome, Chromium, or Edge executable with an independent profile inside the selected Mem and a Mem-bound loopback port. The agent uses DOM/CDP for targeting, input, and tab management.
