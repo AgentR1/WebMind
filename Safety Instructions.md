@@ -6,6 +6,8 @@ Read these safety instructions carefully before using the WebMind macOS / Claude
 
 WebMind macOS / Claude Code Skill can assist with real actions through a browser, desktop interface, mouse, keyboard, CDP remote debugging, and related mechanisms. These actions may directly affect local files, account state, website data, and real-world business outcomes. Even though the Skill includes multiple safety constraints, it cannot completely eliminate risks from mistakes, malicious pages, software vulnerabilities, or other unforeseen conditions.
 
+The default installer copies the complete plugin into Claude's personal skills directory and prepares a separate dependency environment. It leaves the download untouched and does not accept Mem risk or choose external memory. Updates replace only a marked same-platform installation and preserve its Mem pointer. Backups under `webmind-install-backups` in the Claude configuration root can contain private location pointers; do not publish them. Report unknown destinations or conflicting plugin origins and preserve unrelated plugins and settings.
+
 ## 1. Safety constraints built into the Skill
 
 WebMind macOS / Claude Code Skill includes multiple safety constraints intended to reduce the impact of sensitive-data exposure and incorrect actions, including but not limited to the following:

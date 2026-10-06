@@ -32,3 +32,9 @@ dist/
 # Runtime data must stay outside the repository
 /*-mem/
 /*-[Pp]rofile/
+
+# Local installer ownership (never distribute an installed marker)
+.webmind-install.json
+
+# Disposable installation tests
+.tmp-*/

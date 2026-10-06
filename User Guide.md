@@ -23,77 +23,68 @@ WebMind includes no browser, credentials, active Mem, signed-in profile, or Pyth
 
 ## 2. How to install WebMind and its dependencies
 
-**For stable, long-term use of WebMind, we strongly recommend registering the plugin source through Claude Code's marketplace, then installing WebMind with the plugin installation command so Claude Code can manage the plugin. Simply copying files into the plugin cache directory is not recommended. See section 2.2 for the steps.**
+**Recommended default: the installer copies the complete plugin into Claude's personal skills directory, `~/.claude/skills/webmind-claudecode`. The desktop is only the download source; no separate permanent folder needs to be chosen.** This supported plugin layout is separate from the plugin cache. Marketplace registration remains an optional compatibility or team-distribution route.
 
-Prepare a native macOS desktop, Claude Code, Python 3.10+, Chrome/Chromium/Edge, and network access for the first dependency installation. Use a native Python build matching the Mac's Apple Silicon or Intel architecture.
+Prepare a native macOS (Apple Silicon or Intel) desktop, Claude Code, native Python 3.10+, Chrome/Chromium/Edge and network access for initial dependencies. Use a current Claude release and verify actual loading in a new session. Keep the complete distribution, including manifests, launchers, all six skills, requirements and user/safety documentation. Do not copy a virtual environment from another computer.
 
-Every method must keep the complete distribution containing `.claude-plugin`, `scripts`, and `skills`, `requirements.txt`, guides, and safety material. Never copy only one component or move `.venv` between computers.
+### 2.0 Simplest installation method (recommended)
 
-### 2.0 Simplest installation method
-
-1. Save the complete `mac-claudecode` folder at a stable location, for example:
-
-   ```text
-   /Users/me/Tools/mac-claudecode
-   ```
-
-2. In local Claude Code, replace the example path with the real absolute path and send:
+1. Download and extract the complete distribution to the desktop or another convenient temporary location.
+2. In local Claude Code, replace the placeholder with the complete download's real absolute path and send:
 
    ```text
-   Read the Safety Instructions and User Guide in /Users/me/Tools/mac-claudecode. Install the complete WebMind plugin, all WebMind skills, and their Python dependencies. Do not install only one skill. Run diagnostics afterward and report the plugin path, runtime path, and results. Explain before changing configuration or requesting additional access.
+   Read and follow the Safety Instructions, User Guide, and installation workflow in <absolute path to the complete download>. Run the default installer to copy the complete WebMind plugin with all six Skills into Claude's personal skills directory and install Python dependencies. Run doctor --json from the installed copy and report the plugin path, runtime path, and results. Explain before changing Claude configuration or requesting additional access. Install only in this conversation; restart Claude Code and verify loading in a new conversation before initializing Mem.
    ```
 
-3. Verify the path and runtime reported by the agent. The default environment is `~/Library/Application Support/WebMind/.venv`.
+   The Agent should follow [the complete installation workflow](references/INSTALLATION.md) and run the default installer. It copies the whole plugin and prepares dependencies without asking you to choose a permanent source. The equivalent command is:
 
-Installing software, loading WebMind, initializing Mem, and authorizing a particular web action are separate steps. Installation grants no general permission to act.
+   ```bash
+   WEBMIND_DOWNLOAD="<absolute path to the complete download>"
+   bash "$WEBMIND_DOWNLOAD/scripts/install.sh"
+   ```
 
-### 2.1 Other installation method—temporary local-directory loading
+3. The reported destination must be Claude's personal skills directory. Dependencies default to `~/Library/Application Support/WebMind/.venv`. Run `doctor --json` from the destination and inspect all six skills and dependencies. Check for an old marketplace or inline WebMind that can shadow the new copy. Unknown targets are not overwritten; marked same-platform updates retain a backup and the destination Mem pointer.
+4. **Restart Claude Code and initialize in a NEW conversation.** Confirm the host loads all six skills, invoke `/webmind-claudecode:webmind-mem`, and compare the actual loaded Skill root and that copy's `doctor.plugin_root` with the destination. After verification, you may remove the desktop download yourself. The installer never deletes it.
 
-This is useful for first trials and development. Installing dependencies and loading the plugin are separate steps:
+If `CLAUDE_CONFIG_DIR` is set, the destination is `skills/webmind-claudecode` under that root. Installation and later sessions must use the same setting. `WEBMIND_DATA_DIR` changes dependencies only, must stay outside the plugin and does not choose Mem.
+
+Flags: `--dry-run` validates and prints a plan without changes; `--skip-deps` copies files only; `--deps-only` prepares dependencies for the existing copy without copying it. A file copy or passing doctor does not prove host loading. Installation, loading, Mem risk acceptance and authorization for a specific web action remain separate steps.
+
+### 2.1 Other installation method: temporary local directory
+
+For development or temporary use, set the root to the complete plugin's actual path. The source must remain available while used:
 
 ```bash
-WEBMIND_ROOT="/Users/me/Tools/mac-claudecode"
-bash "$WEBMIND_ROOT/scripts/install.sh"
+WEBMIND_ROOT="<actual complete plugin path>"
+bash "$WEBMIND_ROOT/scripts/install.sh" --deps-only
 claude --plugin-dir "$WEBMIND_ROOT"
 ```
 
-Dependencies default to `~/Library/Application Support/WebMind/.venv`. `--plugin-dir` loads the plugin only for the current Claude Code session. `WEBMIND_DATA_DIR` changes runtime storage, not Mem selection.
+`--plugin-dir` applies only to that session. Do not enable another same-name copy at the same time. Restart and use a new conversation before Mem initialization.
 
-### 2.2 Other installation method—Claude Code marketplace
+### 2.2 Other installation method: marketplace compatibility
 
-For persistent plugin management, use the bundled `.claude-plugin` manifests:
-
-```text
-claude plugin marketplace add <GitHub-owner>/<repository>
-claude plugin install webmind-claudecode@webmind-claudecode
-```
-
-The local plugin root can also be a marketplace source. Do not enable the same plugin from several sources. A marketplace install normally runs from a cached copy, so ask the agent to locate the active plugin root and install dependencies from that copy:
-
-```text
-Locate the active webmind-claudecode plugin root. Run its dependency installer, then run doctor --json. Do not guess the path from an older installation.
-```
-
-### 2.3 Other installation method—manual Python environment
-
-If the installer consistently fails, create the equivalent environment manually. Confirm Python 3.10+ first, and do not weaken system security policy to bypass script restrictions.
+If the host cannot load plugins from the personal skills directory, update Claude first. If a marketplace is needed, complete the copy in 2.0 and register **the destination**, not the desktop source:
 
 ```bash
-WEBMIND_ROOT="/Users/me/Tools/mac-claudecode"
-WEBMIND_DATA="${WEBMIND_DATA_DIR:-$HOME/Library/Application Support/WebMind}"
-python3 -m venv "$WEBMIND_DATA/.venv"
-"$WEBMIND_DATA/.venv/bin/python" -m pip install --upgrade pip
-"$WEBMIND_DATA/.venv/bin/python" -m pip install -r "$WEBMIND_ROOT/requirements.txt"
-"$WEBMIND_DATA/.venv/bin/python" "$WEBMIND_ROOT/scripts/webmind.py" doctor --json
+WEBMIND_ROOT="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/webmind-claudecode"
+claude plugin marketplace add "$WEBMIND_ROOT"
+claude plugin install webmind-claudecode@webmind-claudecode --scope user
 ```
 
-You must still load the plugin through `--plugin-dir` or the marketplace. Never copy `.venv` from another computer.
+Inspect any existing same-name marketplace before migrating its WebMind origin; preserve unrelated plugins and registrations. A local marketplace with `source: "./"` loads in place. Remote marketplaces normally use a cached copy and must select the edition's correct branch. Never register the desktop download as this workflow's permanent source.
+
+For an already loaded marketplace copy, resolve the root from the actual loaded Skill and run its `scripts/install.sh --deps-only`. The default installer creates the personal skills copy and must not be substituted for dependency preparation of a marketplace copy. Verify the actual root and all six skills after restart.
+
+### 2.3 Other installation method: manual Python environment
+
+Check paths, Python and permissions first; do not weaken system execution policy. If the shell wrapper cannot run, invoke the download's `scripts/install.py` directly with native Python 3.10+. To prepare dependencies manually, use `--skip-deps` to copy the plugin first, then create the platform virtual environment `~/Library/Application Support/WebMind/.venv` and install the **destination's** `requirements.txt` with its Python. Run the destination launcher with `doctor --json`. The new session must still verify host loading. The desktop source need not remain once verification passes.
 
 ## 3. Initialization
 
 **Do not install and initialize in the same conversation. After installation, restart Claude Code before initializing in a new conversation.**
 
-Before initialization, the Agent should invoke `/webmind-claudecode:webmind-mem` and verify the loaded Skill, the complete plugin files, and the plugin root returned by diagnostics. If valid, report the actual Skill path and plugin root. Remind the user to avoid moving the Skill or modifying its files: the commands are stored there rather than embedded in Claude Code. If invocation fails, files are incomplete, or the paths do not match, report an installation problem and ask the user to reinstall, restart Claude Code, and initialize in a new conversation.
+Before initialization, verify all six skills are discovered by the host, invoke `/webmind-claudecode:webmind-mem` and run doctor from the actual loaded copy. For the default installation, both the loaded Skill root and `doctor.plugin_root` must equal the personal-skills destination, without an old desktop, inline or marketplace copy shadowing it. For an explicitly selected alternative, verify that method's intended root. Stop initialization on loading failures; repair within authorization, restart and verify in a new conversation. Report the actual installed path and keep that copy in place. The desktop download is separate.
 
 After invocation verification, check Python, dependencies, all Skills, the browser, and relevant permissions. Begin formal Mem initialization only when the environment is ready. See the [Mem pre-initialization checks](skills/webmind-mem/SKILL.md#pre-initialization-checks) for the full procedure.
 
@@ -144,7 +135,7 @@ Check WebMind initialization again according to the User Guide. First remind me 
 Use manual commands only if automatic initialization consistently fails:
 
 ```bash
-WEBMIND_ROOT="/Users/me/Tools/mac-claudecode"
+WEBMIND_ROOT="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/webmind-claudecode"
 MEM_PARENT="$HOME/WebMindData"
 MEM_NAME='work-42-mem'
 mkdir -p "$MEM_PARENT"
@@ -174,7 +165,7 @@ Before any command that may launch a browser, the agent should identify the real
 Replace the WebMind path, then run:
 
 ```bash
-WEBMIND_ROOT="/Users/me/Tools/mac-claudecode"
+WEBMIND_ROOT="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/webmind-claudecode"
 bash "$WEBMIND_ROOT/scripts/webmind.sh" doctor --json
 bash "$WEBMIND_ROOT/scripts/webmind.sh" mem init-status --json
 bash "$WEBMIND_ROOT/scripts/webmind.sh" mem check --json
@@ -310,7 +301,7 @@ In all three choices, the user must personally handle passwords, verification co
 | --- | --- |
 | WebMind Skills are missing | Confirm the complete distribution is installed and loaded, not one component directory. |
 | Initialization is required | Retry automatic initialization; if it still fails, run `mem init-status` and follow section 3.2. |
-| Python or dependencies are missing | Confirm native Python 3.10+, rerun the dependency installer and `doctor --json`. |
+| Python or dependencies are missing | Confirm native Python 3.10+, rerun the active copy's installer with `--deps-only` and `doctor --json`. |
 | Profile or port mismatch | Check the selected Mem and `webmind-profile.json`; never edit the port or take over another browser. |
 | Browser starts but cannot connect | Check port conflicts, profile locks, and host approvals; do not delete the profile first. |
 | `cdp self-check` fails | Confirm the dedicated browser is already running; this command does not launch it. |
@@ -338,6 +329,8 @@ After an unintended send, deletion, upload, purchase, or other major result, sto
 | Claude-in-Chrome | A separate Claude browser integration, not WebMind's desktop-control mode. |
 
 ### 5.3 Updates, removal, and backup
+
+For the default install, run the installer from a new complete download to update. It preserves the destination Mem pointer and backs up the previous plugin under `webmind-install-backups` in the Claude configuration root. Temporary and marketplace copies use `--deps-only` for dependencies. Restart and verify in a new conversation after updating. To remove the default copy, disable `webmind-claudecode@skills-dir` or remove the verified personal-skills folder after ending active tasks. Handle backups separately; they can contain private pointers. External Mem/Profile is never removed with the program.
 
 Before updating, finish active tasks and record the Mem name and absolute path. Update the complete distribution, reinstall dependencies, then run `doctor --json` and `mem init-status --json`. If the pointer is lost, reselect the original Mem. Never mix individual components from different versions.
 

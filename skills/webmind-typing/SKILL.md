@@ -18,7 +18,9 @@ Assign `WEBMIND_ROOT` to that path.
 bash "$WEBMIND_ROOT/scripts/webmind.sh" typing <command> [options]
 ```
 
-Request permission before dependency installation or access beyond the allowed workspace.
+For an installation request, follow [the installation workflow](../../references/INSTALLATION.md).
+The request already authorizes routine copying and dependency preparation; seek additional
+permission only for access the host requires or work beyond that authorized scope.
 Never disable sandboxing or broaden permanent permissions to work around a denial.
 
 Before normal use, inspect `webmind mem init-status --json` and follow the
