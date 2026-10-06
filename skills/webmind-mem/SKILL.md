@@ -164,7 +164,13 @@ the metadata or migrate unknown or mismatched values.
 
 同时说明：用户可在每次任务前选择；默认使用不可见的 Agent 专用浏览器，不等待额外确认。可见模式通过 `--visible-mode` 选择。模式选择仅对当前任务有效，不沿用上次选择，也不保存为 Mem 偏好。若用户选择自己的浏览器，就使用可见的日常浏览器；选择 Agent 专用浏览器且未要求可见模式时，就使用不可见的专用浏览器。
 
-After initialization succeeds, report the Mem, Profile and port, and actively explain:
+**重要提示（初始化完成时必须主动告知，不能只提供教程链接）：**
+
+1. **先安装 Chrome**：请先在本机安装 Google Chrome，再启动浏览器任务；WebMind 不包含 Chrome 本体。
+2. **先在可见模式下登录常用网站**：建议你现在要求 Agent 以可见模式（`--visible-mode`）打开默认的 Agent 专用浏览器（即 CDP 浏览器），并由你本人登录后续任务主要需要使用的网站。以后需要登录新网站或登录状态失效时，可再次要求 Agent 以可见模式打开同一专用浏览器，并手动完成登录。
+3. **两种模式共享登录状态**：在使用同一个 Mem 时，可见模式与不可见模式使用同一个 Agent 专用浏览器 Profile，登录状态等浏览器数据互通。登录状态仍有效时，后续不可见模式任务通常无需重复登录。
+
+After initialization succeeds, report the Mem, Profile and port, and actively explain all three browser choices:
 
 - **User's own browser mode**: use desktop screenshots, mouse and keyboard on the user's already-open everyday Chrome, reusing its current session without attaching its Profile to CDP.
 - **Dedicated Agent browser mode**: use the independent Profile bound to this Mem through CDP/DOM, in invisible mode by default; switch to visible mode for manual sign-in or takeover.
@@ -175,6 +181,12 @@ confirmation. Mode flags control new launches; reuse existing verified browsers 
 their actual mode after a notice, without waiting for another confirmation.
 The choice is valid only for the current task; do not inherit it or store it as a Mem
 preference. Selecting the user's own browser still means visible everyday Chrome.
+
+**Important reminders (include these in the initialization completion response; a tutorial link alone is insufficient):**
+
+1. **Install Chrome first**: install Google Chrome on your computer before starting browser tasks. WebMind does not bundle Chrome.
+2. **Use visible mode to sign in to your main sites**: we recommend asking the Agent now to open its default dedicated browser (the CDP browser) in visible mode (`--visible-mode`), then signing in yourself to the sites you expect to use in later tasks. When you need to sign in to a new site or an existing session expires, ask the Agent to open the same dedicated browser in visible mode again and complete the sign-in yourself.
+3. **Both modes share sign-in state**: when using the same Mem, visible and invisible modes use the same dedicated Agent browser profile and share its sign-in state and other browser data. While a session remains valid, later tasks in invisible mode generally do not require another sign-in.
 
 ## Storage invariants
 
