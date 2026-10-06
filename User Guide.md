@@ -31,7 +31,7 @@ Every method must keep the complete distribution containing `SKILL.md`, `scripts
 
 ### 2.0 Simplest installation method
 
-1. Save the complete `mac-codex` folder at a stable location, for example:
+1. Download or extract the complete `mac-codex` folder to a local directory, such as the desktop. The default installer copies the complete Skill into Codex's Skill directory; the source folder is only used for installation. For example:
 
    ```text
    /Users/me/Tools/mac-codex
