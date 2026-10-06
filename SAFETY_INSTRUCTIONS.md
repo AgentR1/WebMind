@@ -6,6 +6,8 @@ Read these Safety Instructions carefully before using the WebMind Windows / Clau
 
 WebMind Windows / Claude Code Skill can perform real operations through a browser, desktop UI, mouse, keyboard, and CDP remote debugging. Because these actions can directly affect local files, account state, website data, and real-world business outcomes, the safety restrictions built into the Skill cannot completely eliminate risks caused by mistakes, malicious pages, software vulnerabilities, or other unforeseen factors.
 
+The default installer copies the complete plugin into Claude's personal skills directory and prepares a separate dependency environment. It leaves the download untouched and does not accept Mem risk or choose external memory. Updates replace only a marked same-platform installation and preserve its Mem pointer. Backups under `webmind-install-backups` in the Claude configuration root can contain private location pointers; do not publish them. Report unknown destinations or conflicting plugin origins and preserve unrelated plugins and settings.
+
 ## 1. Safety restrictions already built into the Skill
 
 WebMind Windows / Claude Code Skill includes multiple safety constraints intended to reduce the impact of sensitive-data exposure and incorrect actions, including but not limited to the following:

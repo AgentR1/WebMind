@@ -12,6 +12,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from install import SKILLS, installation_status
+
 
 MINIMUM_PYTHON = (3, 10)
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
@@ -69,11 +71,13 @@ def doctor() -> int:
         "PyAutoGUI": importlib.util.find_spec("pyautogui") is not None,
     }
     scripts = {name: path.is_file() for name, path in COMPONENTS.items()}
+    skills = {name: (PLUGIN_ROOT / "skills" / name / "SKILL.md").is_file() for name in SKILLS}
     ok = (
         sys.version_info >= MINIMUM_PYTHON
         and platform.system() == 'Windows'
         and all(dependencies.values())
         and all(scripts.values())
+        and all(skills.values())
     )
     ok = ok and platform.system() == 'Windows'
     init = initialization_status()
@@ -86,6 +90,8 @@ def doctor() -> int:
                 "plugin_root": str(PLUGIN_ROOT),
                 "dependencies": dependencies,
                 "components": scripts,
+                "skills": skills,
+                "installation": installation_status(PLUGIN_ROOT),
                 "initialization": init,
             },
             ensure_ascii=False,

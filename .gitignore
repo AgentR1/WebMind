@@ -23,3 +23,6 @@ skills/webmind-mem/mem-location.json
 **/Cookies-journal
 **/Login Data
 **/Login Data-journal
+
+# Local installer ownership (never distribute an installed marker)
+.webmind-install.json

@@ -18,7 +18,9 @@ Assign `$WebMindRoot` to that path.
 & "$WebMindRoot\scripts\webmind.ps1" mem <command> [options]
 ```
 
-Request permission before dependency installation or access beyond the allowed workspace.
+For an installation request, follow [the installation workflow](../../references/INSTALLATION.md).
+The request already authorizes routine copying and dependency preparation; seek additional
+permission only for access the host requires or work beyond that authorized scope.
 Never disable sandboxing or broaden permanent permissions to work around a denial.
 
 ## Task browser mode
@@ -63,8 +65,16 @@ Skill installation is separate from Mem initialization and from accepting Mem ri
    A nonzero doctor exit can still return its root; assess installation placement
    and file completeness before assessing dependencies.
    Check the correct platform/host, the launcher, runtime scripts, requirements,
-   entry metadata, and all six Skill directories. A complete, correctly loaded plugin
-   is valid regardless of its installation directory. If invocation fails, the loaded
+   entry metadata, and all six Skill directories, including host discovery of all six
+   namespaced Skills. For the default installation, compare this root with
+   `installation.expected_plugin_root` and require `in_personal_skills_directory: true`.
+   Do not accept a desktop/download root or an old inline/marketplace root that shadows
+   the intended copy. A user who explicitly chose an alternative installation method
+   may use that method's verified root. `host_loading_verified: false` from doctor
+   is expected: only the host invocation and loaded paths establish session loading.
+   If another origin shadows the intended copy, explain it and follow the
+   [installation workflow](../../references/INSTALLATION.md) within existing authorization,
+   then require a restart and new conversation before continuing. If invocation fails, the loaded
    files are missing/unreadable/incomplete, or the reported root does not match, tell
    the user that installation has a problem and they should reinstall. Stop before
    environment checks or formal Mem initialization; remind them to restart Claude Code
@@ -76,6 +86,8 @@ Skill installation is separate from Mem initialization and from accepting Mem ri
    > 请不要随意更改该Skill的位置或修改其文件，因为各种命令均保存在此处，而非内嵌于Claude code中。
 
    Continue using that verified copy without moving it or changing the default invocation.
+   For the default installation, explain that the separate desktop download can now be
+   removed by the user; never automatically delete it or suggest deleting the installed copy.
 
 3. **Check the environment from the verified copy.** Run `doctor --json` through
    that copy's launcher, or reuse the diagnostic just collected if the copy and

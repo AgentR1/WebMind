@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+- Claude Code 默认安装改为完整复制到个人 Skills 目录，无需用户准备长期来源目录；增加暂存安装、受管更新备份、保留目标 Mem 指针、来源冲突提示和六个 Skill 的加载核验，保留 `--deps-only` 兼容方式。
+
 - 为 Windows Claude Code 版增加任务级不可见模式（`cdp --invisible-mode`）；未指定时默认使用不可见模式，新增互斥参数 `--visible-mode`，保留 `--invisible-mode`，不持久化上次选择。
 - 识别浏览器实际模式；已有实例模式不符时告知实际模式及 ESC 停止提示，然后继续复用，并保留 Profile/端口校验。
 - 同步中英文教程、安全须知与 Skills，说明不可见模式的 CDP 操作范围和人工接管流程。
